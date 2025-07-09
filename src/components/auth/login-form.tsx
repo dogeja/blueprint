@@ -64,11 +64,11 @@ export function LoginForm() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
+    <div className='min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8'>
       <Card className='w-full max-w-md'>
         <CardHeader className='text-center'>
-          <div className='mx-auto w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4'>
-            <span className='text-white font-bold text-xl'>P</span>
+          <div className='mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4'>
+            <span className='text-primary-foreground font-bold text-xl'>P</span>
           </div>
           <CardTitle className='text-2xl font-bold'>
             {isSignUp ? "회원가입" : "로그인"}
@@ -82,7 +82,7 @@ export function LoginForm() {
             <div>
               <label
                 htmlFor='email'
-                className='block text-sm font-medium text-gray-700 mb-1'
+                className='block text-sm font-medium text-foreground mb-1'
               >
                 이메일
               </label>
@@ -98,7 +98,7 @@ export function LoginForm() {
             <div>
               <label
                 htmlFor='password'
-                className='block text-sm font-medium text-gray-700 mb-1'
+                className='block text-sm font-medium text-foreground mb-1'
               >
                 비밀번호
               </label>
@@ -119,7 +119,7 @@ export function LoginForm() {
           <div className='mt-4 text-center'>
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className='text-sm text-blue-600 hover:text-blue-500'
+              className='text-sm text-primary hover:text-primary/80'
             >
               {isSignUp
                 ? "이미 계정이 있으신가요? 로그인"

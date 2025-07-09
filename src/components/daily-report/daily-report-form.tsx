@@ -73,14 +73,14 @@ export function DailyReportForm() {
       <Card>
         <CardHeader>
           <CardTitle className='text-xl font-bold'>일일업무보고</CardTitle>
-          <div className='text-sm text-gray-600'>
+          <div className='text-sm text-muted-foreground'>
             {formatDate(selectedDate)}
           </div>
         </CardHeader>
         <CardContent className='space-y-4'>
           {/* 날짜 선택 */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               보고 날짜
             </label>
             <Input
@@ -94,7 +94,7 @@ export function DailyReportForm() {
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
             {/* 컨디션 점수 */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
                 컨디션 점수 {getConditionEmoji(formData.condition_score)}
               </label>
               <Select
@@ -116,7 +116,7 @@ export function DailyReportForm() {
 
             {/* 전일 퇴근시간 */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
                 <Clock className='w-4 h-4 inline mr-1' />
                 전일 퇴근시간
               </label>
@@ -134,7 +134,7 @@ export function DailyReportForm() {
 
             {/* 금일 출근시간 */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
                 <Clock className='w-4 h-4 inline mr-1' />
                 금일 출근시간
               </label>
@@ -152,7 +152,7 @@ export function DailyReportForm() {
 
             {/* 근무 장소 */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
                 <MapPin className='w-4 h-4 inline mr-1' />
                 근무 장소
               </label>

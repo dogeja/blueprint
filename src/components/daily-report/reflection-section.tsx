@@ -84,7 +84,7 @@ export function ReflectionSection() {
         {/* 점수 평가 */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               <Heart className='w-4 h-4 inline mr-1' />
               에너지 레벨 {getEnergyEmoji(reflectionForm.energy_level)}
             </label>
@@ -106,7 +106,7 @@ export function ReflectionSection() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               <Star className='w-4 h-4 inline mr-1' />
               만족도 {getSatisfactionEmoji(reflectionForm.satisfaction_score)}
             </label>
@@ -131,7 +131,7 @@ export function ReflectionSection() {
         {/* 회고 내용 */}
         <div className='space-y-4'>
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               ✅ 오늘 잘한 것들
             </label>
             <Textarea
@@ -148,7 +148,7 @@ export function ReflectionSection() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               🤔 어려웠던 점들
             </label>
             <Textarea
@@ -165,7 +165,7 @@ export function ReflectionSection() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               💡 배운 점과 인사이트
             </label>
             <Textarea
@@ -182,7 +182,7 @@ export function ReflectionSection() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               <Target className='w-4 h-4 inline mr-1' />
               내일의 우선순위 (3가지)
             </label>

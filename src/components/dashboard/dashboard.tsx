@@ -31,8 +31,8 @@ export function Dashboard() {
       {/* 헤더 */}
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900'>대시보드</h1>
-          <p className='text-gray-600'>
+          <h1 className='text-2xl font-bold text-foreground'>대시보드</h1>
+          <p className='text-muted-foreground'>
             {formatDate(selectedDate)} -
             {currentReport?.condition_score && (
               <span className='ml-1'>

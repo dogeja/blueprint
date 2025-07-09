@@ -53,24 +53,26 @@ export function Navbar() {
       {/* 사이드바 */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className='flex flex-col h-full'>
           {/* 헤더 */}
-          <div className='flex items-center justify-between h-16 px-4 border-b border-gray-200'>
+          <div className='flex items-center justify-between h-16 px-4 border-b border-border'>
             <div className='flex items-center'>
-              <div className='w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center'>
-                <span className='text-white font-bold text-sm'>P</span>
+              <div className='w-8 h-8 bg-primary rounded-lg flex items-center justify-center'>
+                <span className='text-primary-foreground font-bold text-sm'>
+                  P
+                </span>
               </div>
-              <span className='ml-2 text-lg font-semibold text-gray-900'>
+              <span className='ml-2 text-lg font-semibold text-foreground'>
                 PPMS
               </span>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className='lg:hidden p-1 rounded-md hover:bg-gray-100'
+              className='lg:hidden p-1 rounded-md hover:bg-muted text-muted-foreground'
             >
               <X className='w-5 h-5' />
             </button>
@@ -87,8 +89,8 @@ export function Navbar() {
                   className={cn(
                     "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-blue-50 text-blue-700 border border-blue-200"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-primary/10 text-primary border border-primary/20"
+                      : "text-muted-foreground hover:bg-muted"
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -100,30 +102,30 @@ export function Navbar() {
           </nav>
 
           {/* 프로필 섹션 */}
-          <div className='p-4 border-t border-gray-200'>
+          <div className='p-4 border-t border-border'>
             <div className='relative'>
               <button
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                className='flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100'
+                className='flex items-center w-full px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-muted'
               >
-                <div className='w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3'>
-                  <User className='w-4 h-4' />
+                <div className='w-8 h-8 bg-muted rounded-full flex items-center justify-center mr-3'>
+                  <User className='w-4 h-4 text-muted-foreground' />
                 </div>
                 <div className='flex-1 text-left'>
                   <div className='text-sm font-medium'>
                     {profile?.name || "사용자"}
                   </div>
-                  <div className='text-xs text-gray-500'>
+                  <div className='text-xs text-muted-foreground'>
                     {profile?.position || ""}
                   </div>
                 </div>
               </button>
 
               {profileMenuOpen && (
-                <div className='absolute bottom-full left-0 w-full mb-2 bg-white rounded-lg shadow-lg border border-gray-200'>
+                <div className='absolute bottom-full left-0 w-full mb-2 bg-card rounded-lg shadow-lg border border-border'>
                   <button
                     onClick={handleSignOut}
-                    className='flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg'
+                    className='flex items-center w-full px-3 py-2 text-sm text-foreground hover:bg-muted rounded-lg'
                   >
                     <LogOut className='w-4 h-4 mr-3' />
                     로그아웃
@@ -137,18 +139,20 @@ export function Navbar() {
 
       {/* 모바일 상단 바 */}
       <div className='lg:hidden'>
-        <div className='flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200'>
+        <div className='flex items-center justify-between h-16 px-4 bg-card border-b border-border'>
           <button
             onClick={() => setSidebarOpen(true)}
-            className='p-1 rounded-md hover:bg-gray-100'
+            className='p-1 rounded-md hover:bg-muted text-muted-foreground'
           >
             <Menu className='w-6 h-6' />
           </button>
           <div className='flex items-center'>
-            <div className='w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center'>
-              <span className='text-white font-bold text-sm'>P</span>
+            <div className='w-8 h-8 bg-primary rounded-lg flex items-center justify-center'>
+              <span className='text-primary-foreground font-bold text-sm'>
+                P
+              </span>
             </div>
-            <span className='ml-2 text-lg font-semibold text-gray-900'>
+            <span className='ml-2 text-lg font-semibold text-foreground'>
               PPMS
             </span>
           </div>

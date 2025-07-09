@@ -145,10 +145,10 @@ export function TaskSection() {
         {showAddForm && (
           <form
             onSubmit={handleSubmit}
-            className='p-4 border rounded-lg bg-gray-50 space-y-4'
+            className='p-4 border border-border rounded-lg bg-muted/50 space-y-4'
           >
             <div className='flex items-center justify-between'>
-              <h3 className='font-medium'>
+              <h3 className='font-medium text-foreground'>
                 {editingTask ? "업무 수정" : "새 업무 추가"}
               </h3>
               <Button
@@ -163,7 +163,9 @@ export function TaskSection() {
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label className='block text-sm font-medium mb-1'>업무명</label>
+                <label className='block text-sm font-medium text-foreground mb-1'>
+                  업무명
+                </label>
                 <Input
                   value={taskForm.title}
                   onChange={(e) =>
@@ -175,7 +177,9 @@ export function TaskSection() {
               </div>
 
               <div>
-                <label className='block text-sm font-medium mb-1'>분류</label>
+                <label className='block text-sm font-medium text-foreground mb-1'>
+                  분류
+                </label>
                 <Select
                   value={taskForm.category}
                   onChange={(e) =>
@@ -191,7 +195,7 @@ export function TaskSection() {
               </div>
 
               <div>
-                <label className='block text-sm font-medium mb-1'>
+                <label className='block text-sm font-medium text-foreground mb-1'>
                   예상 소요시간 (분)
                 </label>
                 <Input
@@ -208,7 +212,7 @@ export function TaskSection() {
               </div>
 
               <div>
-                <label className='block text-sm font-medium mb-1'>
+                <label className='block text-sm font-medium text-foreground mb-1'>
                   우선순위
                 </label>
                 <Select
@@ -229,7 +233,7 @@ export function TaskSection() {
               </div>
 
               <div className='md:col-span-2'>
-                <label className='block text-sm font-medium mb-1'>
+                <label className='block text-sm font-medium text-foreground mb-1'>
                   연결된 목표
                 </label>
                 <Select
@@ -251,7 +255,7 @@ export function TaskSection() {
               </div>
 
               <div className='md:col-span-2'>
-                <label className='block text-sm font-medium mb-1'>
+                <label className='block text-sm font-medium text-foreground mb-1'>
                   상세 설명
                 </label>
                 <Textarea
@@ -278,13 +282,13 @@ export function TaskSection() {
         <div>
           <h3 className='font-medium text-lg mb-3 flex items-center gap-2'>
             <Badge variant='secondary'>계속업무</Badge>
-            <span className='text-sm text-gray-500'>
+            <span className='text-sm text-muted-foreground'>
               ({continuousTasks.length}건)
             </span>
           </h3>
 
           {continuousTasks.length === 0 ? (
-            <p className='text-gray-500 text-sm py-4'>
+            <p className='text-muted-foreground text-sm py-4'>
               등록된 계속업무가 없습니다.
             </p>
           ) : (
@@ -306,13 +310,13 @@ export function TaskSection() {
         <div>
           <h3 className='font-medium text-lg mb-3 flex items-center gap-2'>
             <Badge variant='outline'>단기업무</Badge>
-            <span className='text-sm text-gray-500'>
+            <span className='text-sm text-muted-foreground'>
               ({shortTermTasks.length}건)
             </span>
           </h3>
 
           {shortTermTasks.length === 0 ? (
-            <p className='text-gray-500 text-sm py-4'>
+            <p className='text-muted-foreground text-sm py-4'>
               등록된 단기업무가 없습니다.
             </p>
           ) : (
@@ -347,9 +351,11 @@ function TaskCard({
   onProgressUpdate: (taskId: string, progress: number) => void;
 }) {
   const getPriorityColor = (priority: number) => {
-    if (priority <= 2) return "bg-red-100 text-red-800";
-    if (priority === 3) return "bg-yellow-100 text-yellow-800";
-    return "bg-green-100 text-green-800";
+    if (priority <= 2)
+      return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+    if (priority === 3)
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+    return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
   };
 
   const getPriorityText = (priority: number) => {
@@ -364,12 +370,14 @@ function TaskCard({
   };
 
   return (
-    <div className='p-4 border rounded-lg bg-white hover:shadow-sm transition-shadow'>
+    <div className='p-4 border border-border rounded-lg bg-card hover:shadow-sm transition-shadow'>
       <div className='flex items-start justify-between mb-2'>
         <div className='flex-1'>
-          <h4 className='font-medium text-gray-900'>{task.title}</h4>
+          <h4 className='font-medium text-foreground'>{task.title}</h4>
           {task.description && (
-            <p className='text-sm text-gray-600 mt-1'>{task.description}</p>
+            <p className='text-sm text-muted-foreground mt-1'>
+              {task.description}
+            </p>
           )}
         </div>
         <div className='flex items-center gap-2 ml-4'>
@@ -401,8 +409,8 @@ function TaskCard({
 
       <div className='space-y-2'>
         <div className='flex items-center justify-between text-sm'>
-          <span>진행률</span>
-          <span>{task.progress_rate}%</span>
+          <span className='text-foreground'>진행률</span>
+          <span className='text-foreground'>{task.progress_rate}%</span>
         </div>
         <Progress value={task.progress_rate} className='h-2' />
         <div className='flex gap-2'>
@@ -413,7 +421,7 @@ function TaskCard({
               size='sm'
               onClick={() => onProgressUpdate(task.id, progress)}
               className={`text-xs ${
-                task.progress_rate === progress ? "bg-blue-100" : ""
+                task.progress_rate === progress ? "bg-primary/10" : ""
               }`}
             >
               {progress}%
