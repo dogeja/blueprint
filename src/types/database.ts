@@ -241,6 +241,70 @@ export interface Database {
           updated_at?: string;
         };
       };
+      additional_reports: {
+        Row: {
+          id: string;
+          daily_report_id: string;
+          type: "additional_info" | "instruction";
+          content: string;
+          priority: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          daily_report_id: string;
+          type: "additional_info" | "instruction";
+          content: string;
+          priority?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          daily_report_id?: string;
+          type?: "additional_info" | "instruction";
+          content?: string;
+          priority?: number;
+          created_at?: string;
+        };
+      };
+      templates: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          description: string | null;
+          template_data: any;
+          category: string | null;
+          is_active: boolean;
+          usage_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          description?: string | null;
+          template_data: any;
+          category?: string | null;
+          is_active?: boolean;
+          usage_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          description?: string | null;
+          template_data?: any;
+          category?: string | null;
+          is_active?: boolean;
+          usage_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }

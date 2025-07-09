@@ -1,15 +1,21 @@
+import { Database } from "./database";
+
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Goal = Database["public"]["Tables"]["goals"]["Row"];
 export type DailyReport = Database["public"]["Tables"]["daily_reports"]["Row"];
 export type Task = Database["public"]["Tables"]["tasks"]["Row"];
 export type PhoneCall = Database["public"]["Tables"]["phone_calls"]["Row"];
 export type Reflection = Database["public"]["Tables"]["reflections"]["Row"];
+export type AdditionalReport =
+  Database["public"]["Tables"]["additional_reports"]["Row"];
+export type Template = Database["public"]["Tables"]["templates"]["Row"];
 
 // 확장된 타입들
 export interface DailyReportWithTasks extends DailyReport {
   tasks: Task[];
   phone_calls: PhoneCall[];
   reflections: Reflection | null;
+  additional_reports?: AdditionalReport[];
 }
 
 export interface TaskWithGoal extends Task {
@@ -82,3 +88,23 @@ export interface DailyReportForm {
     satisfaction_score?: number;
   };
 }
+
+export interface GoalForm {
+  title: string;
+  description?: string;
+  type: "yearly" | "monthly" | "weekly" | "daily";
+  parent_goal_id?: string;
+  target_date?: string;
+}
+
+export interface TaskForm {
+  title: string;
+  category: "continuous" | "short_term";
+  description?: string;
+  estimated_time_minutes?: number;
+  priority: number;
+  goal_id?: string;
+}
+
+// Database export for direct use
+export { Database };
