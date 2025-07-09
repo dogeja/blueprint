@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  CheckCircle,
-  Clock,
-  Target,
-  TrendingUp,
-  Calendar,
-  Zap,
-} from "lucide-react";
+import { CheckCircle, Clock, Target, TrendingUp, Zap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store";
 import { getConditionEmoji } from "@/lib/utils";
+import React from "react";
 
 export function StatsCards() {
   const { currentReport } = useDailyReportStore();
@@ -104,6 +98,30 @@ export function StatsCards() {
           </CardContent>
         </Card>
       ))}
+    </div>
+  );
+}
+
+export function TodayOverview() {
+  // 예시 더미 데이터
+  const conditionScore = 7;
+  const mainGoal = "주간 프로젝트 마감";
+  const progress = 65;
+
+  return (
+    <div className='bg-white rounded-lg shadow p-4 flex flex-col gap-2'>
+      <h2 className='text-lg font-semibold mb-2'>오늘의 개요</h2>
+      <div className='flex items-center gap-4'>
+        <span className='text-sm'>
+          컨디션 점수: <b>{conditionScore}/10</b>
+        </span>
+        <span className='text-sm'>
+          주요 목표: <b>{mainGoal}</b>
+        </span>
+        <span className='text-sm'>
+          진행률: <b>{progress}%</b>
+        </span>
+      </div>
     </div>
   );
 }

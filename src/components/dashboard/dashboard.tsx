@@ -3,21 +3,8 @@
 
 import { useEffect } from "react";
 import { format } from "date-fns";
-import { ko } from "date-fns/locale";
-import {
-  Calendar,
-  Target,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Plus,
-  ArrowRight,
-} from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { StatsCards } from "./stats-cards";
 import { RecentActivity } from "./recent-activity";
 import { QuickActions } from "./quick-actions";
@@ -25,6 +12,7 @@ import { TodayOverview } from "./today-overview";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store"; // 한 번만 import
 import { formatDate, getConditionEmoji } from "@/lib/utils";
+import { Plus } from "lucide-react";
 
 export function Dashboard() {
   const { currentReport, selectedDate, loadDailyReport } =
