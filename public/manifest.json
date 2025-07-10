@@ -1,7 +1,7 @@
 {
-  "name": "PPMS - Personal Productivity Management System",
-  "short_name": "PPMS",
-  "description": "개인 생산성 관리 시스템 - 일일업무보고부터 목표관리까지",
+  "name": "靑寫眞 - 청사진진",
+  "short_name": "靑寫眞",
+  "description": "가장 큰 것부터 그려나가는 설계도",
   "theme_color": "#2563eb",
   "background_color": "#ffffff",
   "display": "standalone",

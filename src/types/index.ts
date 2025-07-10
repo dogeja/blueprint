@@ -107,4 +107,4 @@ export interface TaskForm {
 }
 
 // Database export for direct use
-export { Database };
+export type { Database };

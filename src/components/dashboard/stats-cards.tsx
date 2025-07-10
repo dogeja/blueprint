@@ -1,13 +1,39 @@
 "use client";
 
 import React from "react";
+import { useDailyReportStore } from "@/lib/stores/daily-report-store";
+import { useGoalStore } from "@/lib/stores/goal-store";
 
 export function StatsCards() {
-  // 예시 더미 데이터
+  const { currentReport } = useDailyReportStore();
+  const { goals } = useGoalStore();
+
+  // 실제 데이터 기반 통계 계산
+  const totalTasks = currentReport?.tasks?.length || 0;
+  const completedTasks =
+    currentReport?.tasks?.filter((t) => t.progress_rate === 100).length || 0;
+  const completionRate =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  // 활성 목표 수
+  const activeGoals = goals.filter((g) => g.status === "active").length;
+
+  // 평균 컨디션 점수 (최근 7일)
+  const averageCondition = currentReport?.condition_score || 0;
+
   const stats = [
-    { label: "평균 컨디션", value: "7.8/10" },
-    { label: "목표 달성률", value: "82%" },
-    { label: "누적 업무", value: "124건" },
+    {
+      label: "평균 컨디션",
+      value: averageCondition > 0 ? `${averageCondition}/10` : "N/A",
+    },
+    {
+      label: "목표 달성률",
+      value: `${completionRate}%`,
+    },
+    {
+      label: "활성 목표",
+      value: `${activeGoals}개`,
+    },
   ];
 
   return (

@@ -74,7 +74,9 @@ export function LoginForm() {
             {isSignUp ? "회원가입" : "로그인"}
           </CardTitle>
           <CardDescription>
-            {isSignUp ? "PPMS 계정을 만들어보세요" : "PPMS에 로그인하세요"}
+            {isSignUp
+              ? "당신의 청사진을 그려보세요"
+              : "BLUEPRINT에 로그인하세요"}
           </CardDescription>
         </CardHeader>
         <CardContent>

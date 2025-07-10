@@ -20,9 +20,9 @@ export function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className='flex flex-col min-h-screen bg-background lg:flex-row'>
+    <div className='flex min-h-screen bg-background'>
       <Navbar />
-      <main className='w-full flex-1 overflow-auto'>
+      <main className='flex-1 overflow-auto'>
         <div className='p-4 lg:p-6'>{children}</div>
       </main>
       <NotificationToast />

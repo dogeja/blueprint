@@ -8,7 +8,7 @@ export function Header() {
       <div className='container flex h-14 items-center'>
         <div className='mr-4 hidden md:flex'>
           <a className='mr-6 flex items-center space-x-2' href='/'>
-            <span className='hidden font-bold sm:inline-block'>PPMS</span>
+            <span className='hidden font-bold sm:inline-block'>BLUEPRINT</span>
           </a>
         </div>
 
