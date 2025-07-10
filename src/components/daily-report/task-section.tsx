@@ -19,7 +19,7 @@ import { useRef } from "react";
 import { MoreVertical, ChevronDown, ChevronUp } from "lucide-react";
 
 export function TaskSection() {
-  const { currentReport, addTask, updateTask, deleteTask } =
+  const { currentReport, addTask, updateTask, deleteTask, setIsAddingTask } =
     useDailyReportStore();
   const { goals } = useGoalStore();
   const { addNotification } = useUIStore();
@@ -46,6 +46,16 @@ export function TaskSection() {
     });
     setEditingTask(null);
     setShowAddForm(false);
+    setIsAddingTask(false); // 업무 추가 상태 해제
+  };
+
+  const handleShowAddForm = () => {
+    setShowAddForm(true);
+    setIsAddingTask(true); // 업무 추가 상태 설정
+  };
+
+  const handleCancel = () => {
+    resetForm();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,7 +145,7 @@ export function TaskSection() {
         <div className='flex items-center justify-between'>
           <CardTitle>금일업무사항</CardTitle>
           <Button
-            onClick={() => setShowAddForm(true)}
+            onClick={handleShowAddForm}
             size='sm'
             className='flex items-center gap-2'
           >
@@ -159,7 +169,7 @@ export function TaskSection() {
                 type='button'
                 variant='ghost'
                 size='sm'
-                onClick={resetForm}
+                onClick={handleCancel}
               >
                 취소
               </Button>

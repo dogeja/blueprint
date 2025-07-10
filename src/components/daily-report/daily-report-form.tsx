@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Plus, Clock, User, MapPin } from "lucide-react";
+import { Plus, Clock, User, MapPin, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,14 +15,17 @@ import { ReflectionSection } from "./reflection-section";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { formatDate, getConditionEmoji } from "@/lib/utils";
+import { GoalConnectionSection } from "./goal-connection-section";
 
 export function DailyReportForm() {
   const {
     currentReport,
     selectedDate,
-    setSelectedDate,
+    safeSetSelectedDate,
     createOrUpdateReport,
     isSaving,
+    carriedOverTasks,
+    carryOverIncompleteTasks,
   } = useDailyReportStore();
 
   const { addNotification } = useUIStore();
@@ -34,6 +37,40 @@ export function DailyReportForm() {
     today_start_time: currentReport?.today_start_time || "08:40",
     work_location: currentReport?.work_location || "사무실",
   });
+
+  // 페이지 로드 시 어제 미완료 업무 확인 (한 번만)
+  useEffect(() => {
+    const checkIncompleteTasks = async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+
+      // 오늘 날짜일 때만 확인
+      if (selectedDate === today) {
+        await carryOverIncompleteTasks(today);
+      }
+    };
+
+    checkIncompleteTasks();
+  }, []); // 의존성 배열을 비워서 한 번만 실행
+
+  // 미완료 업무가 있으면 간단한 알림 표시
+  useEffect(() => {
+    if (carriedOverTasks.length > 0) {
+      // 이미 알림이 표시되었는지 확인
+      const notificationKey = `carryOverNotification_${format(
+        new Date(),
+        "yyyy-MM-dd"
+      )}`;
+      const hasShownNotification = localStorage.getItem(notificationKey);
+
+      if (!hasShownNotification) {
+        addNotification({
+          type: "info",
+          message: `어제 미완료 업무 ${carriedOverTasks.length}개`,
+        });
+        localStorage.setItem(notificationKey, "true");
+      }
+    }
+  }, [carriedOverTasks, addNotification]);
 
   useEffect(() => {
     if (currentReport) {
@@ -47,10 +84,33 @@ export function DailyReportForm() {
     }
   }, [currentReport]);
 
-  const handleDateChange = (date: string) => {
-    setSelectedDate(date);
-    setFormData((prev) => ({ ...prev, report_date: date }));
+  const handleDateChange = async (date: string) => {
+    const success = await safeSetSelectedDate(date);
+    if (success) {
+      setFormData((prev) => ({ ...prev, report_date: date }));
+    }
   };
+
+  // 날짜 버튼 핸들러들
+  const handleToday = async () => {
+    const today = format(new Date(), "yyyy-MM-dd");
+    await handleDateChange(today);
+  };
+
+  const handleYesterday = async () => {
+    const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
+    await handleDateChange(yesterday);
+  };
+
+  const handleTomorrow = async () => {
+    const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
+    await handleDateChange(tomorrow);
+  };
+
+  // 현재 선택된 날짜 확인
+  const today = format(new Date(), "yyyy-MM-dd");
+  const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
+  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
   const handleSaveBasicInfo = async () => {
     try {
@@ -79,16 +139,54 @@ export function DailyReportForm() {
         </CardHeader>
         <CardContent className='space-y-4'>
           {/* 날짜 선택 */}
-          <div>
-            <label className='block text-sm font-medium text-foreground mb-2'>
+          <div className='space-y-3'>
+            <label className='block text-sm font-medium text-foreground'>
               보고 날짜
             </label>
-            <Input
-              type='date'
-              value={selectedDate}
-              onChange={(e) => handleDateChange(e.target.value)}
-              className='w-full sm:w-auto'
-            />
+
+            {/* 날짜 입력 필드 (메인) */}
+            <div className='flex items-center gap-3'>
+              <Input
+                type='date'
+                value={selectedDate}
+                onChange={(e) => handleDateChange(e.target.value)}
+                className='flex-1 max-w-xs'
+              />
+              <span className='text-sm text-muted-foreground whitespace-nowrap'>
+                직접 선택
+              </span>
+            </div>
+
+            {/* 빠른 날짜 버튼들 (부가기능) */}
+            <div className='flex flex-wrap gap-2'>
+              <Button
+                variant={selectedDate === yesterday ? "secondary" : "outline"}
+                size='sm'
+                onClick={handleYesterday}
+                className='flex items-center gap-1 text-xs'
+              >
+                <Calendar className='w-3 h-3' />
+                어제
+              </Button>
+              <Button
+                variant={selectedDate === today ? "secondary" : "outline"}
+                size='sm'
+                onClick={handleToday}
+                className='flex items-center gap-1 text-xs'
+              >
+                <Calendar className='w-3 h-3' />
+                오늘
+              </Button>
+              <Button
+                variant={selectedDate === tomorrow ? "secondary" : "outline"}
+                size='sm'
+                onClick={handleTomorrow}
+                className='flex items-center gap-1 text-xs'
+              >
+                <Calendar className='w-3 h-3' />
+                내일
+              </Button>
+            </div>
           </div>
 
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
@@ -181,6 +279,9 @@ export function DailyReportForm() {
 
       {/* 업무 섹션 */}
       {currentReport && <TaskSection />}
+
+      {/* 목표 연결 섹션 */}
+      {currentReport && <GoalConnectionSection />}
 
       {/* 전화 통화 섹션 */}
       {currentReport && <PhoneCallSection />}

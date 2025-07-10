@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { format } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StatsCards } from "./stats-cards";
@@ -12,10 +12,16 @@ import { TodayOverview } from "./today-overview";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store";
 import { formatDate, getConditionEmoji } from "@/lib/utils";
-import { Plus, TrendingUp } from "lucide-react";
+import {
+  Plus,
+  TrendingUp,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+} from "lucide-react";
 
 export function Dashboard() {
-  const { currentReport, selectedDate, loadDailyReport } =
+  const { currentReport, selectedDate, loadDailyReport, setSelectedDate } =
     useDailyReportStore();
   const { loadGoals } = useGoalStore();
 
@@ -25,6 +31,24 @@ export function Dashboard() {
     loadDailyReport(today);
     loadGoals();
   }, [loadDailyReport, loadGoals]);
+
+  // 날짜 네비게이션 핸들러들
+  const handlePreviousDay = () => {
+    const prevDate = format(subDays(new Date(selectedDate), 1), "yyyy-MM-dd");
+    setSelectedDate(prevDate);
+  };
+
+  const handleNextDay = () => {
+    const nextDate = format(addDays(new Date(selectedDate), 1), "yyyy-MM-dd");
+    setSelectedDate(nextDate);
+  };
+
+  const handleToday = () => {
+    const today = format(new Date(), "yyyy-MM-dd");
+    setSelectedDate(today);
+  };
+
+  const isToday = selectedDate === format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className='space-y-8'>
@@ -49,6 +73,37 @@ export function Dashboard() {
                 )}
               </p>
             </div>
+          </div>
+
+          {/* 날짜 네비게이션 */}
+          <div className='flex items-center gap-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handlePreviousDay}
+              className='flex items-center gap-1'
+            >
+              <ChevronLeft className='w-4 h-4' />
+              어제
+            </Button>
+            <Button
+              variant={isToday ? "default" : "outline"}
+              size='sm'
+              onClick={handleToday}
+              className='flex items-center gap-1'
+            >
+              <Calendar className='w-4 h-4' />
+              오늘
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handleNextDay}
+              className='flex items-center gap-1'
+            >
+              내일
+              <ChevronRight className='w-4 h-4' />
+            </Button>
           </div>
         </div>
 
