@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Target } from "lucide-react";
+import { Plus, Target, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,10 @@ import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store";
 import { useUIStore } from "@/lib/stores/ui-store";
 import type { Task } from "@/types";
+import { GoalTree } from "./goal-tree";
+import type { Goal } from "@/types";
+import { useRef } from "react";
+import { MoreVertical, ChevronDown, ChevronUp } from "lucide-react";
 
 export function TaskSection() {
   const { currentReport, addTask, updateTask, deleteTask } =
@@ -292,17 +296,56 @@ export function TaskSection() {
               등록된 계속업무가 없습니다.
             </p>
           ) : (
-            <div className='space-y-3'>
-              {continuousTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onProgressUpdate={handleProgressUpdate}
-                />
-              ))}
-            </div>
+            <>
+              {/* 미완료 업무 */}
+              <div className='space-y-3'>
+                {continuousTasks.filter((task) => task.progress_rate < 100)
+                  .length === 0 ? (
+                  <p className='text-muted-foreground text-sm py-2'>
+                    모든 계속업무가 완료되었습니다.
+                  </p>
+                ) : (
+                  continuousTasks
+                    .filter((task) => task.progress_rate < 100)
+                    .map((task) => (
+                      <TaskAccordion
+                        key={task.id}
+                        task={task}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onProgressUpdate={handleProgressUpdate}
+                      />
+                    ))
+                )}
+              </div>
+              {/* 완료 업무(접힘) */}
+              {continuousTasks.filter((task) => task.progress_rate === 100)
+                .length > 0 && (
+                <details className='mt-4'>
+                  <summary className='cursor-pointer text-sm text-green-600 dark:text-green-400 font-semibold select-none'>
+                    완료된 계속업무 (
+                    {
+                      continuousTasks.filter((t) => t.progress_rate === 100)
+                        .length
+                    }
+                    건)
+                  </summary>
+                  <div className='space-y-3 mt-2'>
+                    {continuousTasks
+                      .filter((task) => task.progress_rate === 100)
+                      .map((task) => (
+                        <TaskAccordion
+                          key={task.id}
+                          task={task}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          onProgressUpdate={handleProgressUpdate}
+                        />
+                      ))}
+                  </div>
+                </details>
+              )}
+            </>
           )}
         </div>
 
@@ -320,17 +363,56 @@ export function TaskSection() {
               등록된 단기업무가 없습니다.
             </p>
           ) : (
-            <div className='space-y-3'>
-              {shortTermTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onProgressUpdate={handleProgressUpdate}
-                />
-              ))}
-            </div>
+            <>
+              {/* 미완료 업무 */}
+              <div className='space-y-3'>
+                {shortTermTasks.filter((task) => task.progress_rate < 100)
+                  .length === 0 ? (
+                  <p className='text-muted-foreground text-sm py-2'>
+                    모든 단기업무가 완료되었습니다.
+                  </p>
+                ) : (
+                  shortTermTasks
+                    .filter((task) => task.progress_rate < 100)
+                    .map((task) => (
+                      <TaskAccordion
+                        key={task.id}
+                        task={task}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onProgressUpdate={handleProgressUpdate}
+                      />
+                    ))
+                )}
+              </div>
+              {/* 완료 업무(접힘) */}
+              {shortTermTasks.filter((task) => task.progress_rate === 100)
+                .length > 0 && (
+                <details className='mt-4'>
+                  <summary className='cursor-pointer text-sm text-green-600 dark:text-green-400 font-semibold select-none'>
+                    완료된 단기업무 (
+                    {
+                      shortTermTasks.filter((t) => t.progress_rate === 100)
+                        .length
+                    }
+                    건)
+                  </summary>
+                  <div className='space-y-3 mt-2'>
+                    {shortTermTasks
+                      .filter((task) => task.progress_rate === 100)
+                      .map((task) => (
+                        <TaskAccordion
+                          key={task.id}
+                          task={task}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          onProgressUpdate={handleProgressUpdate}
+                        />
+                      ))}
+                  </div>
+                </details>
+              )}
+            </>
           )}
         </div>
       </CardContent>
@@ -338,8 +420,8 @@ export function TaskSection() {
   );
 }
 
-// 개별 업무 카드 컴포넌트
-function TaskCard({
+// TaskAccordion: 확장형 업무 카드 컴포넌트 (신규)
+function TaskAccordion({
   task,
   onEdit,
   onDelete,
@@ -350,6 +432,27 @@ function TaskCard({
   onDelete: (taskId: string) => void;
   onProgressUpdate: (taskId: string, progress: number) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { addNotification } = useUIStore();
+  const { goals } = useGoalStore();
+
+  // 목표 경로
+  function getGoalPath(goalId: string | null): Goal[] {
+    if (!goalId) return [];
+    const path: Goal[] = [];
+    let current = goals.find((g) => g.id === goalId) || null;
+    while (current !== null) {
+      path.unshift(current!);
+      if (!current!.parent_goal_id) break;
+      current = goals.find((g) => g.id === current!.parent_goal_id) || null;
+    }
+    return path;
+  }
+  const goalPath = getGoalPath(task.goal_id ?? null);
+
+  // 우선순위 컬러/텍스트
   const getPriorityColor = (priority: number) => {
     if (priority <= 2)
       return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
@@ -357,7 +460,6 @@ function TaskCard({
       return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
     return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
   };
-
   const getPriorityText = (priority: number) => {
     const texts = {
       1: "매우높음",
@@ -369,66 +471,158 @@ function TaskCard({
     return texts[priority as keyof typeof texts] || "보통";
   };
 
+  // 진행률 슬라이더
+  const [progress, setProgress] = useState(task.progress_rate);
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    setProgress(value);
+  };
+  const handleSliderCommit = () => {
+    if (progress === 100 && task.progress_rate !== 100) {
+      addNotification({ type: "success", message: "업무가 완료되었습니다!" });
+    }
+    onProgressUpdate(task.id, progress);
+  };
+
+  // 메뉴 외부 클릭 닫기
+  // ... (생략: 필요시 useEffect로 구현)
+
   return (
-    <div className='p-4 border border-border rounded-lg bg-card hover:shadow-sm transition-shadow'>
-      <div className='flex items-start justify-between mb-2'>
-        <div className='flex-1'>
-          <h4 className='font-medium text-foreground'>{task.title}</h4>
-          {task.description && (
-            <p className='text-sm text-muted-foreground mt-1'>
-              {task.description}
-            </p>
-          )}
-        </div>
-        <div className='flex items-center gap-2 ml-4'>
-          <Button variant='ghost' size='sm' onClick={() => onEdit(task)}>
-            <Edit2 className='w-4 h-4' />
-          </Button>
-          <Button variant='ghost' size='sm' onClick={() => onDelete(task.id)}>
-            <Trash2 className='w-4 h-4' />
-          </Button>
-        </div>
-      </div>
-
-      <div className='flex flex-wrap items-center gap-2 mb-3'>
-        <Badge variant='outline' className={getPriorityColor(task.priority)}>
-          {getPriorityText(task.priority)}
-        </Badge>
-
-        {task.estimated_time_minutes && (
-          <Badge variant='outline'>예상 {task.estimated_time_minutes}분</Badge>
-        )}
-
-        {task.goal_id && (
-          <Badge variant='outline'>
-            <Target className='w-3 h-3 mr-1' />
-            목표 연결됨
-          </Badge>
-        )}
-      </div>
-
-      <div className='space-y-2'>
-        <div className='flex items-center justify-between text-sm'>
-          <span className='text-foreground'>진행률</span>
-          <span className='text-foreground'>{task.progress_rate}%</span>
-        </div>
-        <Progress value={task.progress_rate} className='h-2' />
-        <div className='flex gap-2'>
-          {[0, 25, 50, 75, 100].map((progress) => (
-            <Button
-              key={progress}
+    <div
+      className={`border rounded-lg bg-card min-w-0 mb-3 flex flex-col transition-shadow ${
+        progress === 100
+          ? "border-green-500 bg-green-50 dark:bg-green-900/10"
+          : "border-border"
+      }`}
+    >
+      {/* 상단: 업무명/진행률/상태/메뉴 */}
+      <div
+        className='flex items-center justify-between gap-2 p-3 cursor-pointer'
+        onClick={() => setOpen((v) => !v)}
+      >
+        <div className='flex-1 min-w-0'>
+          <div className='flex items-center gap-2 min-w-0'>
+            <h4 className='font-bold text-base sm:text-lg truncate'>
+              {task.title}
+            </h4>
+            {progress === 100 && (
+              <Badge variant='outline' className='flex items-center gap-1'>
+                <CheckCircle className='w-4 h-4' /> 완료
+              </Badge>
+            )}
+          </div>
+          <div className='flex items-center gap-2 mt-1'>
+            <Badge
               variant='outline'
-              size='sm'
-              onClick={() => onProgressUpdate(task.id, progress)}
-              className={`text-xs ${
-                task.progress_rate === progress ? "bg-primary/10" : ""
-              }`}
+              className={getPriorityColor(task.priority)}
             >
-              {progress}%
+              {getPriorityText(task.priority)}
+            </Badge>
+            {task.goal_id && (
+              <Badge variant='outline'>
+                <Target className='w-3 h-3 mr-1' /> 목표
+              </Badge>
+            )}
+          </div>
+        </div>
+        <div className='flex items-center gap-1 ml-2'>
+          <span className='text-sm text-foreground font-semibold mr-2'>
+            {progress}%
+          </span>
+          {open ? (
+            <ChevronUp className='w-5 h-5' />
+          ) : (
+            <ChevronDown className='w-5 h-5' />
+          )}
+          <div
+            className='relative'
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu((v) => !v);
+            }}
+          >
+            <Button variant='ghost' size='icon'>
+              <MoreVertical className='w-5 h-5' />
             </Button>
-          ))}
+            {showMenu && (
+              <div
+                ref={menuRef}
+                className='absolute right-0 mt-2 w-28 bg-popover border rounded shadow z-10'
+              >
+                <button
+                  className='w-full px-3 py-2 text-left hover:bg-accent'
+                  onClick={() => {
+                    setShowMenu(false);
+                    onEdit(task);
+                  }}
+                >
+                  수정
+                </button>
+                <button
+                  className='w-full px-3 py-2 text-left hover:bg-accent'
+                  onClick={() => {
+                    setShowMenu(false);
+                    onDelete(task.id);
+                  }}
+                >
+                  삭제
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      {/* 하단: 상세(펼침) */}
+      {open && (
+        <div className='px-4 pb-4 space-y-3'>
+          {/* 목표 경로 */}
+          {goalPath.length > 0 && (
+            <div className='flex flex-wrap items-center gap-1 text-xs'>
+              {goalPath.map((g, idx) => (
+                <span
+                  key={g.id}
+                  className={`px-2 py-0.5 rounded font-semibold ${
+                    idx === goalPath.length - 1
+                      ? "bg-primary text-white"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                  title={g.title}
+                >
+                  {g.title.length > 10 ? g.title.slice(0, 10) + "..." : g.title}
+                  {idx < goalPath.length - 1 && <span className='mx-1'>→</span>}
+                </span>
+              ))}
+            </div>
+          )}
+          {/* 예상시간/설명 */}
+          <div className='flex flex-wrap items-center gap-2 text-xs'>
+            {task.estimated_time_minutes && (
+              <span className='text-muted-foreground'>
+                예상 {task.estimated_time_minutes}분
+              </span>
+            )}
+            {task.description && (
+              <span className='text-muted-foreground'>{task.description}</span>
+            )}
+          </div>
+          {/* 진행률 슬라이더 */}
+          <div className='flex flex-col gap-2 mt-2'>
+            <label className='text-sm text-foreground mb-1'>진행률</label>
+            <input
+              type='range'
+              min={0}
+              max={100}
+              step={5}
+              value={progress}
+              onChange={handleSliderChange}
+              onMouseUp={handleSliderCommit}
+              onTouchEnd={handleSliderCommit}
+              className='w-full accent-primary h-2 rounded-lg'
+            />
+            <Progress value={progress} className='h-3 sm:h-4' />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang='ko' suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <div className='w-full min-h-screen px-2 sm:px-4'>{children}</div>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

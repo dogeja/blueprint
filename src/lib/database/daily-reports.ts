@@ -163,4 +163,19 @@ export class DailyReportService {
     if (error) throw error;
     return data as DailyReportWithTasks[];
   }
+
+  async getIncompleteTasksFromPreviousDay(date: string): Promise<Task[]> {
+    // date는 yyyy-MM-dd 형식, 하루 전 날짜 계산
+    const prevDate = new Date(date);
+    prevDate.setDate(prevDate.getDate() - 1);
+    const prevDateStr = prevDate.toISOString().slice(0, 10);
+    const { data: report, error } = await this.supabase
+      .from("daily_reports")
+      .select("id, tasks(*)")
+      .eq("report_date", prevDateStr)
+      .single();
+    if (error || !report) return [];
+    // 100% 미만만 필터링
+    return (report.tasks || []).filter((t: any) => t.progress_rate < 100);
+  }
 }

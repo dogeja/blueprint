@@ -27,12 +27,14 @@ export function Dashboard() {
   }, [loadDailyReport, loadGoals]);
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 px-2 sm:px-4'>
       {/* 헤더 */}
-      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+      <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
         <div>
-          <h1 className='text-2xl font-bold text-foreground'>대시보드</h1>
-          <p className='text-muted-foreground'>
+          <h1 className='text-xl sm:text-2xl font-bold text-foreground'>
+            대시보드
+          </h1>
+          <p className='text-muted-foreground text-sm sm:text-base'>
             {formatDate(selectedDate)} -
             {currentReport?.condition_score && (
               <span className='ml-1'>
@@ -42,9 +44,9 @@ export function Dashboard() {
             )}
           </p>
         </div>
-        <div className='mt-4 sm:mt-0 flex gap-2'>
+        <div className='mt-2 sm:mt-0 flex gap-2'>
           <Link href='/daily-report'>
-            <Button className='flex items-center gap-2'>
+            <Button className='flex items-center gap-2 w-full sm:w-auto'>
               <Plus className='w-4 h-4' />
               일일보고 작성
             </Button>

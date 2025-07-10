@@ -28,9 +28,38 @@ export const useDailyReportStore = create<DailyReportState>((set, get) => ({
   isLoading: false,
   isSaving: false,
 
-  setSelectedDate: (date: string) => {
+  setSelectedDate: async (date: string) => {
     set({ selectedDate: date });
-    get().loadDailyReport(date);
+    await get().loadDailyReport(date);
+    // carry-over: 오늘 보고서가 없으면 전날 미완료 업무 복사
+    const { currentReport } = get();
+    if (!currentReport) {
+      const incompleteTasks =
+        await dailyReportService.getIncompleteTasksFromPreviousDay(date);
+      if (incompleteTasks.length > 0) {
+        // 오늘 보고서 생성
+        const newReport = await dailyReportService.createDailyReport({
+          report_date: date,
+        });
+        // 미완료 업무 복사 (진행률 0%로 초기화)
+        for (const task of incompleteTasks) {
+          const addedTask = await dailyReportService.addTask(newReport.id, {
+            title: task.title,
+            category: task.category,
+            description: task.description ?? undefined,
+            estimated_time_minutes: task.estimated_time_minutes ?? undefined,
+            priority: task.priority ?? undefined,
+            goal_id: task.goal_id ?? undefined,
+          });
+          // 진행률 0%로 초기화
+          await dailyReportService.updateTask(addedTask.id, {
+            progress_rate: 0,
+          });
+        }
+        // 새로고침
+        await get().loadDailyReport(date);
+      }
+    }
   },
 
   loadDailyReport: async (date: string) => {

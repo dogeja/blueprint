@@ -15,9 +15,9 @@ export function StatsCards() {
       {stats.map((s, i) => (
         <div
           key={i}
-          className='bg-white rounded-lg shadow p-4 flex flex-col items-center'
+          className='bg-card text-card-foreground rounded-lg shadow p-4 flex flex-col items-center min-w-0'
         >
-          <span className='text-gray-500 text-sm mb-1'>{s.label}</span>
+          <span className='text-muted-foreground text-sm mb-1'>{s.label}</span>
           <span className='text-2xl font-bold'>{s.value}</span>
         </div>
       ))}

@@ -17,7 +17,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
+          "inline-flex items-center justify-center rounded-md text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background select-none",
           {
             "bg-primary text-primary-foreground hover:bg-primary/90":
               variant === "default",
@@ -32,10 +32,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               variant === "link",
           },
           {
-            "h-10 py-2 px-4": size === "default",
-            "h-9 px-3 rounded-md": size === "sm",
-            "h-11 px-8 rounded-md": size === "lg",
-            "h-10 w-10": size === "icon",
+            "h-11 min-h-[44px] py-2 px-4": size === "default",
+            "h-10 min-h-[44px] px-3 rounded-md": size === "sm",
+            "h-12 min-h-[44px] px-8 rounded-md": size === "lg",
+            "h-11 w-11 min-h-[44px] min-w-[44px] p-0": size === "icon",
           },
           className
         )}
