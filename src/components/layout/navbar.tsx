@@ -56,7 +56,7 @@ const navigation = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const { user, profile, signOut } = useAuthStore();
+  const { user, profile, signOut, isLoading } = useAuthStore();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const supabase = createClient();
