@@ -13,6 +13,7 @@ interface UIState {
 
   // Actions
   setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
   setCurrentPage: (page: string) => void;
   setOnlineStatus: (online: boolean) => void;
   addNotification: (
@@ -29,6 +30,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   notifications: [],
 
   setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setCurrentPage: (page: string) => set({ currentPage: page }),
   setOnlineStatus: (online: boolean) => set({ isOnline: online }),
 
