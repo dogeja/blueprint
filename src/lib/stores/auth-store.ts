@@ -10,9 +10,12 @@ interface AuthState {
   setProfile: (profile: Profile | null) => void;
   setLoading: (loading: boolean) => void;
   signOut: () => void;
+  updateProfile: (
+    fields: Partial<Pick<Profile, "name" | "position" | "department">>
+  ) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
   isLoading: true,
@@ -20,4 +23,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   setProfile: (profile) => set({ profile }),
   setLoading: (isLoading) => set({ isLoading }),
   signOut: () => set({ user: null, profile: null }),
+  updateProfile: (fields) => {
+    const prev = get().profile;
+    if (!prev) return;
+    set({ profile: { ...prev, ...fields } });
+  },
 }));

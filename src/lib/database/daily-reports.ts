@@ -146,24 +146,6 @@ export class DailyReportService {
     return data;
   }
 
-  async getRecentReports(limit: number = 7): Promise<DailyReportWithTasks[]> {
-    const { data, error } = await this.supabase
-      .from("daily_reports")
-      .select(
-        `
-        *,
-        tasks(*),
-        phone_calls(*),
-        reflections(*)
-      `
-      )
-      .order("report_date", { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return data as DailyReportWithTasks[];
-  }
-
   async getIncompleteTasksFromPreviousDay(date: string): Promise<Task[]> {
     // date는 yyyy-MM-dd 형식, 하루 전 날짜 계산
     const prevDate = new Date(date);
@@ -177,5 +159,34 @@ export class DailyReportService {
     if (error || !report) return [];
     // 100% 미만만 필터링
     return (report.tasks || []).filter((t: any) => t.progress_rate < 100);
+  }
+
+  // 최근 일일보고 히스토리 가져오기
+  async getRecentReports(limit: number = 7): Promise<DailyReport[]> {
+    const { data, error } = await this.supabase
+      .from("daily_reports")
+      .select("*")
+      .order("report_date", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  // 특정 날짜의 일일보고 가져오기 (tasks 포함)
+  async getReportWithTasks(date: string): Promise<DailyReportWithTasks | null> {
+    const { data: report, error } = await this.supabase
+      .from("daily_reports")
+      .select(
+        `
+        *,
+        tasks(*)
+      `
+      )
+      .eq("report_date", date)
+      .single();
+
+    if (error && error.code !== "PGRST116") throw error;
+    return report as DailyReportWithTasks | null;
   }
 }
