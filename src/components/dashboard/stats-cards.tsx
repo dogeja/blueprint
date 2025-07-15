@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store";
 
@@ -39,13 +40,24 @@ export function StatsCards() {
   return (
     <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
       {stats.map((s, i) => (
-        <div
+        <motion.div
           key={i}
           className='bg-card text-card-foreground rounded-lg shadow p-4 flex flex-col items-center min-w-0'
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            delay: i * 0.1,
+            duration: 0.5,
+            ease: "easeOut",
+          }}
+          whileHover={{
+            scale: 1.02,
+            transition: { duration: 0.2 },
+          }}
         >
           <span className='text-muted-foreground text-sm mb-1'>{s.label}</span>
           <span className='text-2xl font-bold'>{s.value}</span>
-        </div>
+        </motion.div>
       ))}
     </div>
   );

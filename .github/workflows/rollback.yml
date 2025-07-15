@@ -1,0 +1,17 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_url:
+        description: "Deployment URL to rollback to"
+        required: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Rollback deployment
+        run: |
+          npx vercel rollback ${{ github.event.inputs.deployment_url }} --token ${{ secrets.VERCEL_TOKEN }}

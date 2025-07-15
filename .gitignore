@@ -46,3 +46,7 @@ THEME_GUIDE.md
 # Database schema files (참고용이므로 git에서 제외)
 docs/database-schema.sql
 docs/database-erd.md
+
+# 프로젝트 문서 (개발 과정에서만 사용, GitHub에는 노출하지 않음)
+/docs/
+.cursor/

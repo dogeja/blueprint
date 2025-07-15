@@ -1,0 +1,20 @@
+name: Performance Check
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # 매일 오전 9시
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://your-domain.vercel.app
+          uploadArtifacts: true
+          temporaryPublicStorage: true
