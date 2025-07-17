@@ -1,25 +1,16 @@
 // src/components/dashboard/dashboard.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { format, addDays, subDays } from "date-fns";
 import Link from "next/link";
-import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { StatsCards } from "./stats-cards";
 import { RecentActivity } from "./recent-activity";
 import { QuickActions } from "./quick-actions";
 import { TodayOverview } from "./today-overview";
-import { RecentPages } from "./recent-pages";
-import { MotivationFeedback } from "./motivation-feedback";
-import { SmartReminder } from "./smart-reminder";
-import { CalendarIntegration } from "./calendar-integration";
-import { AISuggestions } from "./ai-suggestions";
-import { WidgetWrapper } from "./widget-wrapper";
-import { WidgetEditorModal } from "./widget-editor-modal";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store";
-import { useWidgetStore } from "@/lib/stores/widget-store";
 import { formatDate, getConditionEmoji } from "@/lib/utils";
 import {
   Plus,
@@ -27,53 +18,46 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
-  Settings,
+  Target,
 } from "lucide-react";
-import { useAuthStore } from "@/lib/stores/auth-store";
-
-// 애니메이션 variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-    },
-  },
-};
+import { GoalProgressSection } from "./goal-progress-section";
 
 export function Dashboard() {
   const { currentReport, selectedDate, loadDailyReport, setSelectedDate } =
     useDailyReportStore();
-  const { loadGoals } = useGoalStore();
-  const {
-    widgets,
-    isEditMode,
-    getWidgetsByPosition,
-    initializeWidgets,
-    updateWidgetOrder,
-  } = useWidgetStore();
-  const [isWidgetEditorOpen, setIsWidgetEditorOpen] = useState(false);
+  const { goals, loadGoals } = useGoalStore();
 
   useEffect(() => {
     // 오늘 날짜로 일일보고서 로드
     const today = format(new Date(), "yyyy-MM-dd");
     loadDailyReport(today);
     loadGoals();
-    initializeWidgets();
-  }, [loadDailyReport, loadGoals, initializeWidgets]);
+  }, [loadDailyReport, loadGoals]);
+
+  // 장기 목표 진행률 계산
+  const overallGoalProgress = useMemo(() => {
+    if (!goals.length || !currentReport?.tasks) return 0;
+
+    const goalProgress = goals
+      .map((goal) => {
+        const connectedTasks = currentReport.tasks.filter(
+          (task) => task.goal_id === goal.id
+        );
+        if (connectedTasks.length === 0) return 0;
+
+        const completedTasks = connectedTasks.filter(
+          (task) => task.progress_rate === 100
+        ).length;
+        return (completedTasks / connectedTasks.length) * 100;
+      })
+      .filter((progress) => progress > 0);
+
+    if (goalProgress.length === 0) return 0;
+    return (
+      goalProgress.reduce((sum, progress) => sum + progress, 0) /
+      goalProgress.length
+    );
+  }, [goals, currentReport?.tasks]);
 
   // 날짜 네비게이션 핸들러들
   const handlePreviousDay = () => {
@@ -93,76 +77,15 @@ export function Dashboard() {
 
   const isToday = selectedDate === format(new Date(), "yyyy-MM-dd");
 
-  // 위젯 렌더링 함수
-  const renderWidget = (widgetId: string) => {
-    switch (widgetId) {
-      case "motivation-feedback":
-        return <MotivationFeedback />;
-      case "ai-suggestions":
-        return <AISuggestions />;
-      case "smart-reminder":
-        return <SmartReminder />;
-      case "recent-pages":
-        return <RecentPages />;
-      case "stats-cards":
-        return <StatsCards />;
-      case "today-overview":
-        return <TodayOverview />;
-      case "recent-activity":
-        return <RecentActivity />;
-      case "quick-actions":
-        return <QuickActions />;
-      case "calendar-integration":
-        return <CalendarIntegration />;
-      default:
-        return null;
-    }
-  };
-
-  // 위젯 크기에 따른 그리드 클래스
-  const getWidgetGridClass = (widget: any) => {
-    const sizeClass =
-      widget.size === "large" ? "xl:col-span-2" : "xl:col-span-1";
-    return sizeClass;
-  };
-
-  // 전체 위젯 목록 (편집 모드용)
-  const fullWidthWidgets = getWidgetsByPosition("full");
-  const leftColumnWidgets = getWidgetsByPosition("left");
-  const rightColumnWidgets = getWidgetsByPosition("right");
-
   return (
-    <motion.div
-      className='space-y-8'
-      variants={containerVariants}
-      initial='hidden'
-      animate='visible'
-    >
-      {/* 위젯 편집 모달 */}
-      <WidgetEditorModal
-        isOpen={isWidgetEditorOpen}
-        onClose={() => setIsWidgetEditorOpen(false)}
-      />
-
+    <div className='space-y-8'>
       {/* 헤더 섹션 */}
-      <motion.div
-        className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6'
-        variants={itemVariants}
-      >
+      <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6'>
         <div className='space-y-2'>
-          <motion.div
-            className='flex items-center gap-3'
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <motion.div
-              className='w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg'
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+          <div className='flex items-center gap-3'>
+            <div className='w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg'>
               <TrendingUp className='w-6 h-6 text-primary-foreground' />
-            </motion.div>
+            </div>
             <div>
               <h1 className='text-3xl font-bold text-foreground'>대시보드</h1>
               <p className='text-muted-foreground'>
@@ -175,17 +98,21 @@ export function Dashboard() {
                     </span>
                   </span>
                 )}
+                {overallGoalProgress > 0 && (
+                  <span className='ml-2 inline-flex items-center gap-1'>
+                    • 장기 목표 진행률{" "}
+                    <span className='font-semibold text-primary'>
+                      {overallGoalProgress.toFixed(0)}%
+                    </span>
+                    <Target className='w-4 h-4 text-primary' />
+                  </span>
+                )}
               </p>
             </div>
-          </motion.div>
+          </div>
 
           {/* 날짜 네비게이션 */}
-          <motion.div
-            className='flex items-center gap-2'
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+          <div className='flex items-center gap-2'>
             <Button
               variant='outline'
               size='sm'
@@ -213,149 +140,67 @@ export function Dashboard() {
               내일
               <ChevronRight className='w-4 h-4' />
             </Button>
-          </motion.div>
+          </div>
         </div>
 
-        <motion.div
-          className='flex flex-col sm:flex-row gap-3'
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          {/* 위젯 편집 버튼 */}
-          <Button
-            variant='outline'
-            onClick={() => setIsWidgetEditorOpen(true)}
-            className='flex items-center gap-2'
-          >
-            <Settings className='w-4 h-4' />
-            위젯 설정
-          </Button>
-
+        <div className='flex flex-col sm:flex-row gap-3'>
           <Link href='/daily-report'>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button className='flex items-center gap-2 px-6 py-3 h-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg'>
-                <Plus className='w-5 h-5' />
-                <span className='font-medium'>일일보고 작성</span>
-              </Button>
-            </motion.div>
+            <Button className='flex items-center gap-2 px-6 py-3 h-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg'>
+              <Plus className='w-5 h-5' />
+              <span className='font-medium'>오늘의 계획 작성</span>
+            </Button>
           </Link>
-        </motion.div>
-      </motion.div>
-
-      {/* 전체 너비 위젯들 */}
-      {isEditMode ? (
-        <Reorder.Group
-          axis='y'
-          values={fullWidthWidgets}
-          onReorder={(newOrder) => {
-            newOrder.forEach((widget, index) => {
-              updateWidgetOrder(widget.id, index + 1);
-            });
-          }}
-          className='grid grid-cols-1 xl:grid-cols-3 gap-6'
-        >
-          {fullWidthWidgets.map((widget) => (
-            <WidgetWrapper
-              key={widget.id}
-              widget={widget}
-              className={getWidgetGridClass(widget)}
-            >
-              {renderWidget(widget.id)}
-            </WidgetWrapper>
-          ))}
-        </Reorder.Group>
-      ) : (
-        <div className='grid grid-cols-1 xl:grid-cols-3 gap-6'>
-          {fullWidthWidgets.map((widget) => (
-            <WidgetWrapper
-              key={widget.id}
-              widget={widget}
-              className={getWidgetGridClass(widget)}
-            >
-              {renderWidget(widget.id)}
-            </WidgetWrapper>
-          ))}
         </div>
-      )}
+      </div>
+
+      {/* 통계 카드 섹션 */}
+      <div className='space-y-4'>
+        <div className='flex items-center gap-2'>
+          <div className='w-1 h-6 bg-gradient-to-b from-primary to-primary/60 rounded-full'></div>
+          <h2 className='text-xl font-semibold text-foreground'>오늘의 현황</h2>
+        </div>
+        <StatsCards />
+      </div>
 
       {/* 메인 콘텐츠 그리드 */}
-      <motion.div
-        className='grid grid-cols-1 xl:grid-cols-3 gap-8'
-        variants={itemVariants}
-      >
-        {/* 왼쪽 컬럼 */}
-        <div className='xl:col-span-2'>
-          {isEditMode ? (
-            <Reorder.Group
-              axis='y'
-              values={leftColumnWidgets}
-              onReorder={(newOrder) => {
-                newOrder.forEach((widget, index) => {
-                  updateWidgetOrder(widget.id, index + 1);
-                });
-              }}
-              className='grid grid-cols-1 xl:grid-cols-2 gap-8'
-            >
-              {leftColumnWidgets.map((widget) => (
-                <WidgetWrapper
-                  key={widget.id}
-                  widget={widget}
-                  className={getWidgetGridClass(widget)}
-                >
-                  {renderWidget(widget.id)}
-                </WidgetWrapper>
-              ))}
-            </Reorder.Group>
-          ) : (
-            <div className='grid grid-cols-1 xl:grid-cols-2 gap-8'>
-              {leftColumnWidgets.map((widget) => (
-                <WidgetWrapper
-                  key={widget.id}
-                  widget={widget}
-                  className={getWidgetGridClass(widget)}
-                >
-                  {renderWidget(widget.id)}
-                </WidgetWrapper>
-              ))}
+      <div className='grid grid-cols-1 xl:grid-cols-3 gap-8'>
+        {/* 왼쪽 컬럼 - 오늘 개요 */}
+        <div className='xl:col-span-2 space-y-8'>
+          <div className='space-y-4'>
+            <div className='flex items-center gap-2'>
+              <div className='w-1 h-5 bg-gradient-to-b from-blue-500 to-blue-400 rounded-full'></div>
+              <h2 className='text-lg font-semibold text-foreground'>
+                오늘의 개요
+              </h2>
             </div>
-          )}
+            <TodayOverview />
+          </div>
+
+          <div className='space-y-4'>
+            <div className='flex items-center gap-2'>
+              <div className='w-1 h-5 bg-gradient-to-b from-green-500 to-green-400 rounded-full'></div>
+              <h2 className='text-lg font-semibold text-foreground'>
+                최근 활동
+              </h2>
+            </div>
+            <RecentActivity />
+          </div>
         </div>
 
         {/* 오른쪽 컬럼 - 사이드바 */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          {isEditMode ? (
-            <Reorder.Group
-              axis='y'
-              values={rightColumnWidgets}
-              onReorder={(newOrder) => {
-                newOrder.forEach((widget, index) => {
-                  updateWidgetOrder(widget.id, index + 1);
-                });
-              }}
-              className='space-y-8'
-            >
-              {rightColumnWidgets.map((widget) => (
-                <WidgetWrapper key={widget.id} widget={widget}>
-                  {renderWidget(widget.id)}
-                </WidgetWrapper>
-              ))}
-            </Reorder.Group>
-          ) : (
-            <div className='space-y-8'>
-              {rightColumnWidgets.map((widget) => (
-                <WidgetWrapper key={widget.id} widget={widget}>
-                  {renderWidget(widget.id)}
-                </WidgetWrapper>
-              ))}
+        <div className='space-y-8'>
+          <div className='space-y-4'>
+            <div className='flex items-center gap-2'>
+              <div className='w-1 h-5 bg-gradient-to-b from-purple-500 to-purple-400 rounded-full'></div>
+              <h2 className='text-lg font-semibold text-foreground'>
+                빠른 액션
+              </h2>
             </div>
-          )}
-        </motion.div>
-      </motion.div>
-    </motion.div>
+            <QuickActions />
+          </div>
+          <GoalProgressSection />
+        </div>
+      </div>
+    </div>
   );
 }

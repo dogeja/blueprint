@@ -74,13 +74,13 @@ export function TaskSection() {
         await updateTask(editingTask.id, taskData);
         addNotification({
           type: "success",
-          message: "업무가 수정되었습니다.",
+          message: "목표가 수정되었습니다.",
         });
       } else {
         await addTask(taskData);
         addNotification({
           type: "success",
-          message: "업무가 추가되었습니다.",
+          message: "목표가 추가되었습니다.",
         });
       }
 
@@ -88,7 +88,7 @@ export function TaskSection() {
     } catch (error) {
       addNotification({
         type: "error",
-        message: "업무 저장에 실패했습니다.",
+        message: "목표 저장에 실패했습니다.",
       });
     }
   };
@@ -107,17 +107,17 @@ export function TaskSection() {
   };
 
   const handleDelete = async (taskId: string) => {
-    if (confirm("이 업무를 삭제하시겠습니까?")) {
+    if (confirm("이 목표를 삭제하시겠습니까?")) {
       try {
         await deleteTask(taskId);
         addNotification({
           type: "success",
-          message: "업무가 삭제되었습니다.",
+          message: "목표가 삭제되었습니다.",
         });
       } catch (error) {
         addNotification({
           type: "error",
-          message: "업무 삭제에 실패했습니다.",
+          message: "목표 삭제에 실패했습니다.",
         });
       }
     }
@@ -143,14 +143,14 @@ export function TaskSection() {
     <Card>
       <CardHeader>
         <div className='flex items-center justify-between'>
-          <CardTitle>금일업무사항</CardTitle>
+          <CardTitle>오늘의 목표</CardTitle>
           <Button
             onClick={handleShowAddForm}
             size='sm'
             className='flex items-center gap-2'
           >
             <Plus className='w-4 h-4' />
-            업무 추가
+            목표 추가
           </Button>
         </div>
       </CardHeader>
@@ -163,7 +163,7 @@ export function TaskSection() {
           >
             <div className='flex items-center justify-between'>
               <h3 className='font-medium text-foreground'>
-                {editingTask ? "업무 수정" : "새 업무 추가"}
+                {editingTask ? "목표 수정" : "새 목표 추가"}
               </h3>
               <Button
                 type='button'
@@ -178,14 +178,14 @@ export function TaskSection() {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
                 <label className='block text-sm font-medium text-foreground mb-1'>
-                  업무명
+                  목표명
                 </label>
                 <Input
                   value={taskForm.title}
                   onChange={(e) =>
                     setTaskForm((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  placeholder='업무명을 입력하세요'
+                  placeholder='목표명을 입력하세요'
                   required
                 />
               </div>
@@ -203,8 +203,8 @@ export function TaskSection() {
                     }))
                   }
                 >
-                  <option value='continuous'>계속업무</option>
-                  <option value='short_term'>단기업무</option>
+                  <option value='continuous'>지속적 목표</option>
+                  <option value='short_term'>단기 목표</option>
                 </Select>
               </div>
 
@@ -238,8 +238,8 @@ export function TaskSection() {
                     }))
                   }
                 >
-                  <option value='1'>1 (매우 높음)</option>
-                  <option value='2'>2 (높음)</option>
+                  <option value='1'>1 (매우 중요)</option>
+                  <option value='2'>2 (중요)</option>
                   <option value='3'>3 (보통)</option>
                   <option value='4'>4 (낮음)</option>
                   <option value='5'>5 (매우 낮음)</option>
@@ -280,22 +280,22 @@ export function TaskSection() {
                       description: e.target.value,
                     }))
                   }
-                  placeholder='업무 상세 설명'
+                  placeholder='목표 상세 설명'
                   rows={3}
                 />
               </div>
             </div>
 
             <Button type='submit' className='w-full'>
-              {editingTask ? "수정 완료" : "업무 추가"}
+              {editingTask ? "수정 완료" : "목표 추가"}
             </Button>
           </form>
         )}
 
-        {/* 계속업무 */}
+        {/* 지속적 목표 */}
         <div>
           <h3 className='font-medium text-lg mb-3 flex items-center gap-2'>
-            <Badge variant='secondary'>계속업무</Badge>
+            <Badge variant='secondary'>지속적 목표</Badge>
             <span className='text-sm text-muted-foreground'>
               ({continuousTasks.length}건)
             </span>
@@ -303,16 +303,16 @@ export function TaskSection() {
 
           {continuousTasks.length === 0 ? (
             <p className='text-muted-foreground text-sm py-4'>
-              등록된 계속업무가 없습니다.
+              등록된 지속적 목표가 없습니다.
             </p>
           ) : (
             <>
-              {/* 미완료 업무 */}
+              {/* 미완료 목표 */}
               <div className='space-y-3'>
                 {continuousTasks.filter((task) => task.progress_rate < 100)
                   .length === 0 ? (
                   <p className='text-muted-foreground text-sm py-2'>
-                    모든 계속업무가 완료되었습니다.
+                    모든 지속적 목표가 완료되었습니다.
                   </p>
                 ) : (
                   continuousTasks
@@ -328,12 +328,12 @@ export function TaskSection() {
                     ))
                 )}
               </div>
-              {/* 완료 업무(접힘) */}
+              {/* 완료 목표(접힘) */}
               {continuousTasks.filter((task) => task.progress_rate === 100)
                 .length > 0 && (
                 <details className='mt-4'>
                   <summary className='cursor-pointer text-sm text-green-600 dark:text-green-400 font-semibold select-none'>
-                    완료된 계속업무 (
+                    완료된 지속적 목표 (
                     {
                       continuousTasks.filter((t) => t.progress_rate === 100)
                         .length
@@ -359,10 +359,10 @@ export function TaskSection() {
           )}
         </div>
 
-        {/* 단기업무 */}
+        {/* 단기 목표 */}
         <div>
           <h3 className='font-medium text-lg mb-3 flex items-center gap-2'>
-            <Badge variant='outline'>단기업무</Badge>
+            <Badge variant='secondary'>단기 목표</Badge>
             <span className='text-sm text-muted-foreground'>
               ({shortTermTasks.length}건)
             </span>
@@ -370,16 +370,16 @@ export function TaskSection() {
 
           {shortTermTasks.length === 0 ? (
             <p className='text-muted-foreground text-sm py-4'>
-              등록된 단기업무가 없습니다.
+              등록된 단기 목표가 없습니다.
             </p>
           ) : (
             <>
-              {/* 미완료 업무 */}
+              {/* 미완료 목표 */}
               <div className='space-y-3'>
                 {shortTermTasks.filter((task) => task.progress_rate < 100)
                   .length === 0 ? (
                   <p className='text-muted-foreground text-sm py-2'>
-                    모든 단기업무가 완료되었습니다.
+                    모든 단기 목표가 완료되었습니다.
                   </p>
                 ) : (
                   shortTermTasks
@@ -395,12 +395,12 @@ export function TaskSection() {
                     ))
                 )}
               </div>
-              {/* 완료 업무(접힘) */}
+              {/* 완료 목표(접힘) */}
               {shortTermTasks.filter((task) => task.progress_rate === 100)
                 .length > 0 && (
                 <details className='mt-4'>
                   <summary className='cursor-pointer text-sm text-green-600 dark:text-green-400 font-semibold select-none'>
-                    완료된 단기업무 (
+                    완료된 단기 목표 (
                     {
                       shortTermTasks.filter((t) => t.progress_rate === 100)
                         .length

@@ -73,7 +73,7 @@ export function GoalConnectionSection() {
           목표 연결 현황
         </CardTitle>
         <div className='text-sm text-muted-foreground'>
-          이 날의 업무가 어떤 장기 목표와 연결되어 있는지 확인하세요
+          이 날의 목표가 어떤 장기 목표와 연결되어 있는지 확인하세요
         </div>
       </CardHeader>
       <CardContent className='space-y-4'>
@@ -113,7 +113,7 @@ export function GoalConnectionSection() {
                       <span className='font-medium'>{goal.title}</span>
                     </div>
                     <div className='text-sm text-muted-foreground'>
-                      {totalTasks}개 업무
+                      {totalTasks}개 목표
                     </div>
                   </div>
 
@@ -156,10 +156,10 @@ export function GoalConnectionSection() {
                     </div>
                   </div>
 
-                  {/* 연결된 업무 목록 */}
+                  {/* 연결된 목표 목록 */}
                   <details className='mt-3'>
                     <summary className='cursor-pointer text-sm text-muted-foreground hover:text-foreground'>
-                      연결된 업무 보기 ({totalTasks}개)
+                      연결된 목표 보기 ({totalTasks}개)
                     </summary>
                     <div className='mt-2 space-y-1'>
                       {tasks.map((task: Task) => (
@@ -193,13 +193,13 @@ export function GoalConnectionSection() {
           <div className='mt-4 p-3 border border-dashed border-border rounded-lg'>
             <div className='flex items-center gap-2 mb-2'>
               <Calendar className='w-4 h-4 text-muted-foreground' />
-              <span className='text-sm font-medium'>목표 미연결 업무</span>
+              <span className='text-sm font-medium'>목표 미연결</span>
               <Badge variant='outline' className='text-xs'>
                 {unconnectedTasks.length}개
               </Badge>
             </div>
             <div className='text-xs text-muted-foreground'>
-              업무 작성 시 목표를 선택하여 장기 목표 달성에 기여하는 업무로
+              목표 작성 시 장기 목표를 선택하여 목표 달성에 기여하는 계획으로
               관리하세요
             </div>
           </div>

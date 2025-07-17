@@ -15,7 +15,6 @@ import { ReflectionSection } from "./reflection-section";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { formatDate, getConditionEmoji } from "@/lib/utils";
-import { GoalConnectionSection } from "./goal-connection-section";
 
 export function DailyReportForm() {
   const {
@@ -132,7 +131,7 @@ export function DailyReportForm() {
       {/* 날짜 선택 및 기본 정보 */}
       <Card>
         <CardHeader>
-          <CardTitle className='text-xl font-bold'>일일업무보고</CardTitle>
+          <CardTitle className='text-xl font-bold'>오늘의 계획</CardTitle>
           <div className='text-sm text-muted-foreground'>
             {formatDate(selectedDate)}
           </div>
@@ -280,8 +279,27 @@ export function DailyReportForm() {
       {/* 업무 섹션 */}
       {currentReport && <TaskSection />}
 
-      {/* 목표 연결 섹션 */}
-      {currentReport && <GoalConnectionSection />}
+      {/* 목표 연결 섹션 (향후 구현) */}
+      {currentReport && (
+        <Card>
+          <CardHeader>
+            <CardTitle className='text-lg font-semibold'>목표 연결</CardTitle>
+            <div className='text-sm text-muted-foreground'>
+              이 날의 업무가 어떤 장기 목표와 연결되는지 확인하세요
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className='text-center py-8 text-muted-foreground'>
+              <div className='text-sm'>
+                🎯 장기 목표와의 연결 기능이 준비 중입니다
+              </div>
+              <div className='text-xs mt-2'>
+                업무 작성 시 목표를 선택하여 진행 상황을 추적할 수 있습니다
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 전화 통화 섹션 */}
       {currentReport && <PhoneCallSection />}
