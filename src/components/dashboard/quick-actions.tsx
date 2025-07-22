@@ -37,20 +37,16 @@ export function QuickActions() {
           </Button>
         </Link>
 
-        {/* 미완성 업무 확인 버튼 */}
-        {totalIncompleteTasks > 0 && (
-          <Button
-            variant='outline'
-            className='w-full justify-start gap-2 h-12 border-orange-200 bg-orange-50 hover:bg-orange-100 dark:border-orange-800 dark:bg-orange-950 dark:hover:bg-orange-900'
-            onClick={() => setShowIncompleteTasksModal(true)}
-          >
-            <Clock className='w-4 h-4 text-orange-600' />
-            미완성 업무 확인
-            <Badge variant='secondary' className='ml-auto text-xs'>
-              {totalIncompleteTasks}개
-            </Badge>
-          </Button>
-        )}
+        {/* 미완성 목표 확인 버튼 */}
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => setShowIncompleteTasksModal(true)}
+          className='flex items-center gap-2'
+        >
+          <Clock className='w-4 h-4' />
+          미완성 목표 확인
+        </Button>
 
         <Link href='/goals'>
           <Button variant='outline' className='w-full justify-start gap-2 h-12'>

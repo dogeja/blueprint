@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { OnboardingProvider } from "@/components/onboarding-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            <div className='w-full min-h-screen px-2 sm:px-4'>{children}</div>
+            <OnboardingProvider>
+              <div className='w-full min-h-screen px-2 sm:px-4'>{children}</div>
+            </OnboardingProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

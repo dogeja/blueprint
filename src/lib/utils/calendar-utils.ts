@@ -111,7 +111,7 @@ export function generateWeeklySchedule(
     events.push(dailyReportToCalendarEvent(report));
   });
 
-  // 업무 이벤트 추가
+  // 목표 이벤트 추가
   tasks.forEach((task) => {
     if (task.daily_report_id) {
       const report = reports.find((r) => r.id === task.daily_report_id);

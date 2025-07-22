@@ -17,7 +17,7 @@ interface CallLog {
 export function PhoneCallSection() {
   // 더미 데이터
   const [calls, setCalls] = useState<CallLog[]>([
-    { id: 1, name: "김재영", summary: "업무 협의", time: "09:30" },
+    { id: 1, name: "김재영", summary: "목표 협의", time: "09:30" },
     { id: 2, name: "엉덩밍", summary: "일정 조율", time: "11:10" },
   ]);
   const [form, setForm] = useState({ name: "", summary: "", time: "" });

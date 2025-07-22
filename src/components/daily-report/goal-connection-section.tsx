@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Target, TrendingUp, Calendar } from "lucide-react";
+import { Target, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -13,7 +13,7 @@ export function GoalConnectionSection() {
   const { currentReport } = useDailyReportStore();
   const { goals } = useGoalStore();
 
-  // 목표별 업무 그룹화 및 진행률 계산
+  // 목표별 목표 그룹화 및 진행률 계산
   const goalConnections = useMemo(() => {
     if (!currentReport?.tasks || !goals.length) return [];
 
@@ -36,7 +36,7 @@ export function GoalConnectionSection() {
           (task) => task.progress_rate === 0
         ).length;
 
-        // 전체 진행률 계산 (완료된 업무 비율)
+        // 전체 진행률 계산 (완료된 목표 비율)
         const overallProgress =
           totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
@@ -58,32 +58,39 @@ export function GoalConnectionSection() {
     return connections;
   }, [currentReport?.tasks, goals]);
 
-  // 목표가 연결된 업무가 있는지 확인
+  // 목표가 연결된 목표가 있는지 확인
   const hasGoalConnections = goalConnections.length > 0;
 
-  // 목표가 연결되지 않은 업무
+  // 목표가 연결되지 않은 목표
   const unconnectedTasks =
     currentReport?.tasks.filter((task) => !task.goal_id) || [];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-lg font-semibold flex items-center gap-2'>
+        <CardTitle className='flex items-center gap-2'>
           <Target className='w-5 h-5' />
           목표 연결 현황
         </CardTitle>
-        <div className='text-sm text-muted-foreground'>
-          이 날의 목표가 어떤 장기 목표와 연결되어 있는지 확인하세요
-        </div>
       </CardHeader>
       <CardContent className='space-y-4'>
+        <div className='bg-muted/50 rounded-lg p-4'>
+          <div className='flex items-center gap-2 mb-2'>
+            <Target className='w-4 h-4 text-primary' />
+            <span className='text-sm font-medium'>목표 연결</span>
+          </div>
+          <p className='text-sm text-muted-foreground'>
+            목표 작성 시 목표를 선택하여 진행 상황을 추적하세요
+          </p>
+        </div>
+
         {!hasGoalConnections ? (
           <div className='text-center py-6 text-muted-foreground'>
             <Target className='w-8 h-8 mx-auto mb-2 opacity-50' />
-            <div className='text-sm'>연결된 목표가 없습니다</div>
-            <div className='text-xs mt-1'>
-              업무 작성 시 목표를 선택하여 진행 상황을 추적하세요
-            </div>
+            <p>연결된 목표가 없습니다.</p>
+            <p className='text-sm'>
+              목표를 작성할 때 장기 목표를 선택해보세요.
+            </p>
           </div>
         ) : (
           <div className='space-y-4'>
@@ -97,29 +104,19 @@ export function GoalConnectionSection() {
                 notStartedTasks,
                 overallProgress,
               }) => (
-                <div
-                  key={goal.id}
-                  className='p-4 border border-border rounded-lg'
-                >
-                  <div className='flex items-center justify-between mb-3'>
-                    <div className='flex items-center gap-2'>
-                      <Badge
-                        variant={
-                          goal.type === "yearly" ? "default" : "secondary"
-                        }
-                      >
-                        {goal.type === "yearly" ? "연간" : "월간"}
-                      </Badge>
-                      <span className='font-medium'>{goal.title}</span>
+                <div key={goal.id} className='p-4 border rounded-lg space-y-3'>
+                  <div className='flex items-center justify-between'>
+                    <div>
+                      <h4 className='font-medium'>{goal.title}</h4>
+                      <div className='text-sm text-muted-foreground'>
+                        {totalTasks}개 목표
+                      </div>
                     </div>
-                    <div className='text-sm text-muted-foreground'>
-                      {totalTasks}개 목표
-                    </div>
+                    <Badge variant='outline'>{goal.type}</Badge>
                   </div>
 
-                  {/* 진행률 바 */}
-                  <div className='mb-3'>
-                    <div className='flex items-center justify-between text-sm mb-1'>
+                  <div className='space-y-2'>
+                    <div className='flex items-center justify-between text-sm'>
                       <span>전체 진행률</span>
                       <span className='font-medium'>
                         {overallProgress.toFixed(0)}%
@@ -128,7 +125,7 @@ export function GoalConnectionSection() {
                     <Progress value={overallProgress} className='h-2' />
                   </div>
 
-                  {/* 업무 상태 요약 */}
+                  {/* 목표 상태 요약 */}
                   <div className='grid grid-cols-3 gap-2 text-xs'>
                     <div className='text-center p-2 bg-green-50 dark:bg-green-950 rounded'>
                       <div className='font-medium text-green-700 dark:text-green-300'>
@@ -156,16 +153,15 @@ export function GoalConnectionSection() {
                     </div>
                   </div>
 
-                  {/* 연결된 목표 목록 */}
                   <details className='mt-3'>
                     <summary className='cursor-pointer text-sm text-muted-foreground hover:text-foreground'>
                       연결된 목표 보기 ({totalTasks}개)
                     </summary>
                     <div className='mt-2 space-y-1'>
-                      {tasks.map((task: Task) => (
+                      {tasks.map((task) => (
                         <div
                           key={task.id}
-                          className='flex items-center justify-between text-sm p-2 bg-muted/50 rounded'
+                          className='flex items-center justify-between text-sm p-2 bg-muted/30 rounded'
                         >
                           <span className='truncate'>{task.title}</span>
                           <Badge
@@ -188,7 +184,7 @@ export function GoalConnectionSection() {
           </div>
         )}
 
-        {/* 목표가 연결되지 않은 업무 */}
+        {/* 목표가 연결되지 않은 목표 */}
         {unconnectedTasks.length > 0 && (
           <div className='mt-4 p-3 border border-dashed border-border rounded-lg'>
             <div className='flex items-center gap-2 mb-2'>

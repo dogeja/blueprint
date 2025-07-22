@@ -50,19 +50,18 @@ export function calculateWeeklyGoalProgress(
   return Math.round(totalProgress / goals.length);
 }
 
-// 어제와 오늘 비교 (업무 완료 개수)
+// 어제와 오늘 비교 (목표 완료 개수)
 export function compareYesterdayToday(
-  yesterdayTasks: Array<{ progress_rate: number }>,
-  todayTasks: Array<{ progress_rate: number }>
+  yesterdayReport: { tasks: Array<{ progress_rate: number }> } | null,
+  todayReport: { tasks: Array<{ progress_rate: number }> } | null
 ): { type: "improved" | "same" | "decreased"; difference: number } {
-  const yesterdayCompleted = yesterdayTasks.filter(
-    (t) => t.progress_rate === 100
-  ).length;
-  const todayCompleted = todayTasks.filter(
-    (t) => t.progress_rate === 100
-  ).length;
+  const yesterdayCompletedTasks =
+    yesterdayReport?.tasks.filter((task) => task.progress_rate === 100)
+      .length || 0;
+  const todayCompletedTasks =
+    todayReport?.tasks.filter((task) => task.progress_rate === 100).length || 0;
 
-  const difference = todayCompleted - yesterdayCompleted;
+  const difference = todayCompletedTasks - yesterdayCompletedTasks;
 
   if (difference > 0) return { type: "improved", difference };
   if (difference < 0)

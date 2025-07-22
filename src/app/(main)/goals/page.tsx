@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useGoalStore } from "@/lib/stores/goal-store";
-import { useUIStore } from "@/lib/stores/ui-store";
 import type { Goal } from "@/types";
+import { toast } from "@/components/ui/toast";
 
 export default function GoalsPage() {
   const {
@@ -24,7 +24,6 @@ export default function GoalsPage() {
     updateGoal,
     deleteGoal,
   } = useGoalStore();
-  const { addNotification } = useUIStore();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
@@ -64,24 +63,15 @@ export default function GoalsPage() {
 
       if (editingGoal) {
         await updateGoal(editingGoal.id, goalData);
-        addNotification({
-          type: "success",
-          message: "목표가 수정되었습니다.",
-        });
+        toast.success("목표가 수정되었습니다.");
       } else {
         await createGoal(goalData);
-        addNotification({
-          type: "success",
-          message: "목표가 추가되었습니다.",
-        });
+        toast.success("목표가 추가되었습니다.");
       }
 
       resetForm();
     } catch (error) {
-      addNotification({
-        type: "error",
-        message: "목표 저장에 실패했습니다.",
-      });
+      toast.error("목표 저장에 실패했습니다.");
     }
   };
 
@@ -101,15 +91,9 @@ export default function GoalsPage() {
     if (confirm("이 목표를 삭제하시겠습니까?")) {
       try {
         await deleteGoal(goalId);
-        addNotification({
-          type: "success",
-          message: "목표가 삭제되었습니다.",
-        });
+        toast.success("목표가 삭제되었습니다.");
       } catch (error) {
-        addNotification({
-          type: "error",
-          message: "목표 삭제에 실패했습니다.",
-        });
+        toast.error("목표 삭제에 실패했습니다.");
       }
     }
   };
@@ -117,11 +101,9 @@ export default function GoalsPage() {
   const handleProgressUpdate = async (goalId: string, progress: number) => {
     try {
       await updateGoal(goalId, { progress_rate: progress });
+      toast.success("진행률이 업데이트되었습니다.");
     } catch (error) {
-      addNotification({
-        type: "error",
-        message: "진행률 업데이트에 실패했습니다.",
-      });
+      toast.error("진행률 업데이트에 실패했습니다.");
     }
   };
 

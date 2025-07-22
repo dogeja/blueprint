@@ -31,14 +31,14 @@ export function StatsCards() {
 
   const stats = [
     {
-      title: "오늘 업무",
+      title: "오늘 목표",
       value: totalTasks,
       subtitle: `${completedTasks}개 완료`,
-      icon: CheckCircle,
-      gradient: "from-green-500 to-emerald-600",
-      bgGradient: "from-green-50 to-emerald-50",
-      darkBgGradient: "from-green-900/20 to-emerald-900/20",
-      color: "text-green-600 dark:text-green-400",
+      icon: Target,
+      gradient: "from-blue-500 to-indigo-600",
+      bgGradient: "from-blue-50 to-indigo-50",
+      darkBgGradient: "from-blue-900/20 to-indigo-900/20",
+      color: "text-blue-600 dark:text-blue-400",
     },
     {
       title: "완료율",

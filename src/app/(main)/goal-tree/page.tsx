@@ -289,41 +289,27 @@ function GoalDetailPanel({
             </motion.div>
           )}
 
-          {/* 연결된 업무 */}
+          {/* 연결된 목표 */}
           {connectedTasks.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h4 className='text-sm font-medium mb-2'>연결된 업무</h4>
-              <div className='space-y-2'>
-                {connectedTasks.map((task, index) => (
-                  <motion.div
+            <div className='mt-4 p-3 bg-muted/50 rounded-lg'>
+              <h4 className='text-sm font-medium mb-2'>연결된 목표</h4>
+              <div className='space-y-1'>
+                {connectedTasks.slice(0, 3).map((task) => (
+                  <div
                     key={task.id}
-                    className='flex items-center justify-between text-sm p-2 bg-muted/50 rounded'
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.05 }}
+                    className='text-xs text-muted-foreground flex items-center gap-1'
                   >
-                    <span className='truncate'>{task.title}</span>
-                    <div className='flex items-center gap-2'>
-                      <Badge
-                        variant={
-                          task.progress_rate === 100 ? "default" : "secondary"
-                        }
-                        className='text-xs'
-                      >
-                        {task.progress_rate}%
-                      </Badge>
-                      {task.progress_rate === 100 && (
-                        <CheckCircle className='h-4 w-4 text-green-500' />
-                      )}
-                    </div>
-                  </motion.div>
+                    <div className='w-1 h-1 bg-primary rounded-full' />
+                    {task.title}
+                  </div>
                 ))}
+                {connectedTasks.length > 3 && (
+                  <div className='text-xs text-muted-foreground'>
+                    외 {connectedTasks.length - 3}개 더...
+                  </div>
+                )}
               </div>
-            </motion.div>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -71,8 +71,8 @@ export function analyzeUserPatterns(
 
   // 컨디션별 패턴
   const conditionPatterns = {
-    high: ["중요 업무", "창의적 작업", "회의"],
-    low: ["정리", "간단한 업무", "문서작성"],
+    high: ["중요 목표", "창의적 작업", "회의"],
+    low: ["정리", "간단한 목표", "문서작성"],
   };
 
   // 자주 사용하는 키워드 추출
@@ -154,9 +154,9 @@ export function generateGoalSuggestions(
       id: "frequent-category",
       type: "category",
       title: "자주 사용하는 카테고리",
-      message: `이번 주 '${topCategory}' 업무를 ${categoryCount}개 완료하셨네요. 다음 주는 '${getNextCategory(
+      message: `이번 주 '${topCategory}' 목표를 ${categoryCount}개 완료하셨네요. 다음 주는 '${getNextCategory(
         topCategory
-      )}' 목표는 어떠세요?`,
+      )}' 분야에 집중해보세요.`,
       confidence: 0.8,
       actionUrl: "/goals",
       actionText: "목표 설정하기",
@@ -245,7 +245,7 @@ export function generateDailyReportSuggestions(
         id: "high-condition",
         type: "task",
         title: "컨디션이 좋아요!",
-        message: `어제 컨디션이 ${condition}점이었네요! 오늘은 '${patterns.conditionPatterns.high[0]}' 같은 중요한 업무를 계획해보세요.`,
+        message: `어제 컨디션이 ${condition}점이었네요! 오늘은 '${patterns.conditionPatterns.high[0]}' 같은 중요한 목표를 계획해보세요.`,
         confidence: 0.8,
       });
     } else if (condition <= 4) {
@@ -253,7 +253,7 @@ export function generateDailyReportSuggestions(
         id: "low-condition",
         type: "task",
         title: "컨디션 관리",
-        message: `어제 컨디션이 ${condition}점이었네요. 오늘은 '${patterns.conditionPatterns.low[0]}' 같은 가벼운 업무부터 시작해보세요.`,
+        message: `어제 컨디션이 ${condition}점이었네요. 오늘은 '${patterns.conditionPatterns.low[0]}' 같은 가벼운 목표부터 시작해보세요.`,
         confidence: 0.8,
       });
     }
@@ -273,7 +273,7 @@ export function generateDailyReportSuggestions(
         title: "목표 진행도",
         message: `현재 목표 진행도가 ${Math.round(
           avgProgress
-        )}%예요. 오늘 목표 달성을 위한 구체적인 업무를 계획해보세요.`,
+        )}%예요. 오늘 목표 달성을 위한 구체적인 목표를 계획해보세요.`,
         confidence: 0.7,
         actionUrl: "/goals",
         actionText: "목표 확인하기",

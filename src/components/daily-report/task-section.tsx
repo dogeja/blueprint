@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Target, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,18 +11,24 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store";
-import { useUIStore } from "@/lib/stores/ui-store";
+import { useTaskReorder } from "@/lib/hooks/use-drag-and-drop";
+import { DraggableTask } from "@/components/ui/draggable-task";
 import type { Task } from "@/types";
 import { GoalTree } from "./goal-tree";
 import type { Goal } from "@/types";
-import { useRef } from "react";
 import { MoreVertical, ChevronDown, ChevronUp } from "lucide-react";
+import { toast } from "@/components/ui/toast";
 
 export function TaskSection() {
-  const { currentReport, addTask, updateTask, deleteTask, setIsAddingTask } =
-    useDailyReportStore();
+  const {
+    currentReport,
+    addTask,
+    updateTask,
+    deleteTask,
+    setIsAddingTask,
+    reorderTasks,
+  } = useDailyReportStore();
   const { goals } = useGoalStore();
-  const { addNotification } = useUIStore();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -33,6 +39,20 @@ export function TaskSection() {
     estimated_time_minutes: "",
     priority: 3,
     goal_id: "",
+  });
+
+  // 드래그 앤 드롭 훅 사용
+  const {
+    dragState,
+    handleTaskDragStart,
+    handleTaskDrop,
+    handleDragOver,
+    handleDragLeave,
+    handleDragEnd,
+  } = useTaskReorder(currentReport?.tasks || [], (newTasks) => {
+    // 목표 순서 변경 처리
+    reorderTasks(newTasks);
+    toast.success("목표 순서가 변경되었습니다.");
   });
 
   const resetForm = () => {
@@ -46,12 +66,12 @@ export function TaskSection() {
     });
     setEditingTask(null);
     setShowAddForm(false);
-    setIsAddingTask(false); // 업무 추가 상태 해제
+    setIsAddingTask(false);
   };
 
   const handleShowAddForm = () => {
     setShowAddForm(true);
-    setIsAddingTask(true); // 업무 추가 상태 설정
+    setIsAddingTask(true);
   };
 
   const handleCancel = () => {
@@ -72,24 +92,15 @@ export function TaskSection() {
 
       if (editingTask) {
         await updateTask(editingTask.id, taskData);
-        addNotification({
-          type: "success",
-          message: "목표가 수정되었습니다.",
-        });
+        toast.success("목표가 수정되었습니다.");
       } else {
         await addTask(taskData);
-        addNotification({
-          type: "success",
-          message: "목표가 추가되었습니다.",
-        });
+        toast.success("목표가 추가되었습니다.");
       }
 
       resetForm();
     } catch (error) {
-      addNotification({
-        type: "error",
-        message: "목표 저장에 실패했습니다.",
-      });
+      toast.error("목표 저장에 실패했습니다.");
     }
   };
 
@@ -110,28 +121,51 @@ export function TaskSection() {
     if (confirm("이 목표를 삭제하시겠습니까?")) {
       try {
         await deleteTask(taskId);
-        addNotification({
-          type: "success",
-          message: "목표가 삭제되었습니다.",
-        });
+        toast.success("목표가 삭제되었습니다.");
       } catch (error) {
-        addNotification({
-          type: "error",
-          message: "목표 삭제에 실패했습니다.",
-        });
+        toast.error("목표 삭제에 실패했습니다.");
       }
     }
   };
 
   const handleProgressUpdate = async (taskId: string, progress: number) => {
     try {
+      // 이전 진행률 저장
+      const currentTask = currentReport?.tasks.find((t) => t.id === taskId);
+      const previousProgress = currentTask?.progress_rate || 0;
+
       await updateTask(taskId, { progress_rate: progress });
+
+      // 목표 완료 알림 생성
+      if (progress === 100 && previousProgress < 100 && currentTask) {
+        toast.success(`${currentTask.title} 목표가 완료되었습니다! 🎉`);
+      }
     } catch (error) {
-      addNotification({
-        type: "error",
-        message: "진행률 업데이트에 실패했습니다.",
-      });
+      toast.error("진행률 업데이트에 실패했습니다.");
     }
+  };
+
+  const handleConnectToGoal = async (taskId: string, goalId: string) => {
+    try {
+      await updateTask(taskId, { goal_id: goalId });
+      toast.success("목표가 연결되었습니다.");
+    } catch (error) {
+      toast.error("목표 연결에 실패했습니다.");
+    }
+  };
+
+  const handleDisconnectGoal = async (taskId: string) => {
+    try {
+      await updateTask(taskId, { goal_id: null });
+      toast.success("목표 연결이 해제되었습니다.");
+    } catch (error) {
+      toast.error("목표 연결 해제에 실패했습니다.");
+    }
+  };
+
+  const handleTemplateSelect = (template: any) => {
+    // 템플릿 선택 로직은 나중에 구현
+    console.log("Template selected:", template);
   };
 
   const continuousTasks =
@@ -148,6 +182,7 @@ export function TaskSection() {
             onClick={handleShowAddForm}
             size='sm'
             className='flex items-center gap-2'
+            data-onboarding='task-form'
           >
             <Plus className='w-4 h-4' />
             목표 추가
@@ -155,7 +190,7 @@ export function TaskSection() {
         </div>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* 업무 추가/편집 폼 */}
+        {/* 목표 추가/편집 폼 */}
         {showAddForm && (
           <form
             onSubmit={handleSubmit}
@@ -317,13 +352,30 @@ export function TaskSection() {
                 ) : (
                   continuousTasks
                     .filter((task) => task.progress_rate < 100)
-                    .map((task) => (
-                      <TaskAccordion
+                    .map((task, index) => (
+                      <DraggableTask
                         key={task.id}
                         task={task}
+                        index={index}
+                        goals={goals}
+                        isDragging={
+                          dragState.isDragging &&
+                          dragState.draggedItem?.id === task.id
+                        }
+                        isOver={
+                          dragState.draggedOverZone?.id === "continuous-tasks"
+                        }
+                        isOverIndex={dragState.draggedOverIndex === index}
+                        onDragStart={handleTaskDragStart}
+                        onDragEnd={handleDragEnd}
+                        onDrop={handleTaskDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onProgressUpdate={handleProgressUpdate}
+                        onConnectToGoal={handleConnectToGoal}
+                        onDisconnectGoal={handleDisconnectGoal}
                       />
                     ))
                 )}
@@ -343,13 +395,31 @@ export function TaskSection() {
                   <div className='space-y-3 mt-2'>
                     {continuousTasks
                       .filter((task) => task.progress_rate === 100)
-                      .map((task) => (
-                        <TaskAccordion
+                      .map((task, index) => (
+                        <DraggableTask
                           key={task.id}
                           task={task}
+                          index={index}
+                          goals={goals}
+                          isDragging={
+                            dragState.isDragging &&
+                            dragState.draggedItem?.id === task.id
+                          }
+                          isOver={
+                            dragState.draggedOverZone?.id ===
+                            "completed-continuous-tasks"
+                          }
+                          isOverIndex={dragState.draggedOverIndex === index}
+                          onDragStart={handleTaskDragStart}
+                          onDragEnd={handleDragEnd}
+                          onDrop={handleTaskDrop}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onProgressUpdate={handleProgressUpdate}
+                          onConnectToGoal={handleConnectToGoal}
+                          onDisconnectGoal={handleDisconnectGoal}
                         />
                       ))}
                   </div>
@@ -384,13 +454,30 @@ export function TaskSection() {
                 ) : (
                   shortTermTasks
                     .filter((task) => task.progress_rate < 100)
-                    .map((task) => (
-                      <TaskAccordion
+                    .map((task, index) => (
+                      <DraggableTask
                         key={task.id}
                         task={task}
+                        index={index}
+                        goals={goals}
+                        isDragging={
+                          dragState.isDragging &&
+                          dragState.draggedItem?.id === task.id
+                        }
+                        isOver={
+                          dragState.draggedOverZone?.id === "short-term-tasks"
+                        }
+                        isOverIndex={dragState.draggedOverIndex === index}
+                        onDragStart={handleTaskDragStart}
+                        onDragEnd={handleDragEnd}
+                        onDrop={handleTaskDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onProgressUpdate={handleProgressUpdate}
+                        onConnectToGoal={handleConnectToGoal}
+                        onDisconnectGoal={handleDisconnectGoal}
                       />
                     ))
                 )}
@@ -410,13 +497,31 @@ export function TaskSection() {
                   <div className='space-y-3 mt-2'>
                     {shortTermTasks
                       .filter((task) => task.progress_rate === 100)
-                      .map((task) => (
-                        <TaskAccordion
+                      .map((task, index) => (
+                        <DraggableTask
                           key={task.id}
                           task={task}
+                          index={index}
+                          goals={goals}
+                          isDragging={
+                            dragState.isDragging &&
+                            dragState.draggedItem?.id === task.id
+                          }
+                          isOver={
+                            dragState.draggedOverZone?.id ===
+                            "completed-short-term-tasks"
+                          }
+                          isOverIndex={dragState.draggedOverIndex === index}
+                          onDragStart={handleTaskDragStart}
+                          onDragEnd={handleDragEnd}
+                          onDrop={handleTaskDrop}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onProgressUpdate={handleProgressUpdate}
+                          onConnectToGoal={handleConnectToGoal}
+                          onDisconnectGoal={handleDisconnectGoal}
                         />
                       ))}
                   </div>
@@ -430,7 +535,7 @@ export function TaskSection() {
   );
 }
 
-// TaskAccordion: 확장형 업무 카드 컴포넌트 (신규)
+// TaskAccordion: 확장형 목표 카드 컴포넌트 (신규)
 function TaskAccordion({
   task,
   onEdit,
@@ -445,7 +550,6 @@ function TaskAccordion({
   const [open, setOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { addNotification } = useUIStore();
   const { goals } = useGoalStore();
 
   // 목표 경로
@@ -489,7 +593,7 @@ function TaskAccordion({
   };
   const handleSliderCommit = () => {
     if (progress === 100 && task.progress_rate !== 100) {
-      addNotification({ type: "success", message: "업무가 완료되었습니다!" });
+      // 목표 완료 알림
     }
     onProgressUpdate(task.id, progress);
   };
@@ -505,7 +609,7 @@ function TaskAccordion({
           : "border-border"
       }`}
     >
-      {/* 상단: 업무명/진행률/상태/메뉴 */}
+      {/* 상단: 목표명/진행률/상태/메뉴 */}
       <div
         className='flex items-center justify-between gap-2 p-3 cursor-pointer'
         onClick={() => setOpen((v) => !v)}

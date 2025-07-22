@@ -116,7 +116,7 @@ export function CalendarIntegration() {
               <div className='text-lg font-bold text-orange-600'>
                 {eventCounts.tasks}
               </div>
-              <div className='text-xs text-orange-500'>업무</div>
+              <div className='text-xs text-orange-500'>목표</div>
             </div>
           </div>
 

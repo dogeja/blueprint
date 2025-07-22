@@ -33,7 +33,7 @@ export function FloatingActionButton() {
   if (shouldHide) return null;
 
   return (
-    <div className='fixed bottom-20 right-4 z-50 lg:hidden'>
+    <div className='fixed bottom-24 right-4 z-50 lg:hidden'>
       {/* 빠른 액션 버튼들 */}
       <AnimatePresence>
         {isOpen && (

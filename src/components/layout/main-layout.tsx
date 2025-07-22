@@ -1,13 +1,8 @@
 "use client";
 
 import { Navbar } from "./navbar";
-import { NotificationToast } from "./notification-toast";
 import { ToastContainer } from "@/components/ui/toast";
-import { Celebration } from "@/components/ui/celebration";
-import { ProgressUpdate } from "@/components/ui/progress-update";
-import { AchievementNotification } from "@/components/ui/achievement-notification";
 import { useAuthStore } from "@/lib/stores/auth-store";
-import { useFeedbackStore } from "@/lib/stores/feedback-store";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -15,7 +10,6 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const { isLoading } = useAuthStore();
-  const { showCelebration, showProgressUpdate } = useFeedbackStore();
 
   if (isLoading) {
     return (
@@ -31,22 +25,9 @@ export function MainLayout({ children }: MainLayoutProps) {
       <main className='flex-1 overflow-auto'>
         <div className='p-4 lg:p-6'>{children}</div>
       </main>
-      <NotificationToast />
 
-      {/* 피드백 시스템 */}
+      {/* 토스트 시스템 */}
       <ToastContainer />
-      <AchievementNotification />
-      {showCelebration && <Celebration />}
-      {showProgressUpdate && (
-        <ProgressUpdate
-          isVisible={showProgressUpdate}
-          oldProgress={0}
-          newProgress={100}
-          onComplete={() =>
-            useFeedbackStore.getState().setShowProgressUpdate(false)
-          }
-        />
-      )}
     </div>
   );
 }

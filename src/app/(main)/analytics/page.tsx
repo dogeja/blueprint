@@ -139,7 +139,7 @@ function GoalProgressCard({ goal, tasks }: { goal: Goal; tasks: Task[] }) {
             </div>
             <Progress value={progress} className='h-2' />
             <div className='flex items-center justify-between text-xs text-muted-foreground'>
-              <span>완료된 업무</span>
+              <span>완료된 목표</span>
               <span>
                 {completedTasks}/{totalTasks}
               </span>
@@ -327,7 +327,7 @@ export default function AnalyticsPage() {
         {[
           {
             icon: Target,
-            title: "전체 업무",
+            title: "전체 목표",
             value: overallStats.totalTasks,
             subtitle: `완료: ${overallStats.completedTasks}개`,
             color: "text-primary",

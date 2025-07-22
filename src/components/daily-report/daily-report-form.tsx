@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { format, addDays, subDays } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Plus, Clock, User, MapPin, Calendar } from "lucide-react";
+import { Plus, Clock, User, MapPin, Calendar, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { TaskSection } from "./task-section";
 import { PhoneCallSection } from "./phone-call-section";
 import { ReflectionSection } from "./reflection-section";
+import { ErrorDisplay } from "@/components/ui/error-display";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
-import { useUIStore } from "@/lib/stores/ui-store";
 import { formatDate, getConditionEmoji } from "@/lib/utils";
+import { toast } from "@/components/ui/toast";
 
 export function DailyReportForm() {
   const {
@@ -25,9 +26,12 @@ export function DailyReportForm() {
     isSaving,
     carriedOverTasks,
     carryOverIncompleteTasks,
+    currentError,
+    isRetrying,
+    retryCount,
+    retryLastOperation,
+    clearError,
   } = useDailyReportStore();
-
-  const { addNotification } = useUIStore();
 
   const [formData, setFormData] = useState({
     report_date: selectedDate,
@@ -37,39 +41,25 @@ export function DailyReportForm() {
     work_location: currentReport?.work_location || "사무실",
   });
 
-  // 페이지 로드 시 어제 미완료 업무 확인 (한 번만)
+  // 페이지 로드 시 어제 미완료 목표 확인 (한 번만)
   useEffect(() => {
     const checkIncompleteTasks = async () => {
-      const today = format(new Date(), "yyyy-MM-dd");
-
-      // 오늘 날짜일 때만 확인
-      if (selectedDate === today) {
-        await carryOverIncompleteTasks(today);
+      try {
+        await carryOverIncompleteTasks(selectedDate);
+      } catch (error) {
+        console.error("Failed to check incomplete tasks:", error);
       }
     };
 
     checkIncompleteTasks();
-  }, []); // 의존성 배열을 비워서 한 번만 실행
+  }, []);
 
-  // 미완료 업무가 있으면 간단한 알림 표시
+  // 미완료 목표가 있으면 간단한 알림 표시
   useEffect(() => {
     if (carriedOverTasks.length > 0) {
-      // 이미 알림이 표시되었는지 확인
-      const notificationKey = `carryOverNotification_${format(
-        new Date(),
-        "yyyy-MM-dd"
-      )}`;
-      const hasShownNotification = localStorage.getItem(notificationKey);
-
-      if (!hasShownNotification) {
-        addNotification({
-          type: "info",
-          message: `어제 미완료 업무 ${carriedOverTasks.length}개`,
-        });
-        localStorage.setItem(notificationKey, "true");
-      }
+      toast.info(`어제 미완료 목표 ${carriedOverTasks.length}개`);
     }
-  }, [carriedOverTasks, addNotification]);
+  }, [carriedOverTasks]);
 
   useEffect(() => {
     if (currentReport) {
@@ -114,84 +104,98 @@ export function DailyReportForm() {
   const handleSaveBasicInfo = async () => {
     try {
       await createOrUpdateReport(formData);
-      addNotification({
-        type: "success",
-        message: "기본 정보가 저장되었습니다.",
-      });
+      toast.success("기본 정보가 저장되었습니다.");
     } catch (error) {
-      addNotification({
-        type: "error",
-        message: "저장에 실패했습니다.",
-      });
+      toast.error("저장에 실패했습니다.");
     }
   };
 
   return (
     <div className='space-y-6'>
-      {/* 날짜 선택 및 기본 정보 */}
+      {/* 에러 표시 */}
+      {currentError && (
+        <ErrorDisplay
+          error={currentError}
+          onRetry={retryLastOperation}
+          onDismiss={clearError}
+          showDetails={false}
+        />
+      )}
+
+      {/* 재시도 중 로딩 표시 */}
+      {isRetrying && (
+        <Card className='border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20'>
+          <CardContent className='p-4'>
+            <div className='flex items-center gap-3'>
+              <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600'></div>
+              <div>
+                <h4 className='font-semibold text-blue-800 dark:text-blue-200'>
+                  재시도 중...
+                </h4>
+                <p className='text-sm text-blue-700 dark:text-blue-300'>
+                  {retryCount}번째 시도 중입니다. 잠시만 기다려주세요.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 날짜 선택 섹션 */}
       <Card>
         <CardHeader>
-          <CardTitle className='text-xl font-bold'>오늘의 계획</CardTitle>
+          <CardTitle className='text-lg font-semibold'>날짜 선택</CardTitle>
           <div className='text-sm text-muted-foreground'>
-            {formatDate(selectedDate)}
+            보고서를 작성할 날짜를 선택하세요
           </div>
         </CardHeader>
-        <CardContent className='space-y-4'>
-          {/* 날짜 선택 */}
-          <div className='space-y-3'>
-            <label className='block text-sm font-medium text-foreground'>
-              보고 날짜
-            </label>
-
-            {/* 날짜 입력 필드 (메인) */}
-            <div className='flex items-center gap-3'>
-              <Input
-                type='date'
-                value={selectedDate}
-                onChange={(e) => handleDateChange(e.target.value)}
-                className='flex-1 max-w-xs'
-              />
-              <span className='text-sm text-muted-foreground whitespace-nowrap'>
-                직접 선택
-              </span>
-            </div>
-
-            {/* 빠른 날짜 버튼들 (부가기능) */}
-            <div className='flex flex-wrap gap-2'>
-              <Button
-                variant={selectedDate === yesterday ? "secondary" : "outline"}
-                size='sm'
-                onClick={handleYesterday}
-                className='flex items-center gap-1 text-xs'
-              >
-                <Calendar className='w-3 h-3' />
-                어제
-              </Button>
-              <Button
-                variant={selectedDate === today ? "secondary" : "outline"}
-                size='sm'
-                onClick={handleToday}
-                className='flex items-center gap-1 text-xs'
-              >
-                <Calendar className='w-3 h-3' />
-                오늘
-              </Button>
-              <Button
-                variant={selectedDate === tomorrow ? "secondary" : "outline"}
-                size='sm'
-                onClick={handleTomorrow}
-                className='flex items-center gap-1 text-xs'
-              >
-                <Calendar className='w-3 h-3' />
-                내일
-              </Button>
-            </div>
+        <CardContent>
+          <div className='flex flex-wrap gap-2'>
+            <Button
+              variant='outline'
+              onClick={handleYesterday}
+              className='flex items-center gap-2'
+            >
+              <Calendar className='w-4 h-4' />
+              어제
+            </Button>
+            <Button
+              variant='default'
+              onClick={handleToday}
+              className='flex items-center gap-2'
+            >
+              <Calendar className='w-4 h-4' />
+              오늘
+            </Button>
+            <Button
+              variant='outline'
+              onClick={handleTomorrow}
+              className='flex items-center gap-2'
+            >
+              <Calendar className='w-4 h-4' />
+              내일
+            </Button>
           </div>
+          <div className='mt-4 text-sm text-muted-foreground'>
+            선택된 날짜: {formatDate(selectedDate)}
+          </div>
+        </CardContent>
+      </Card>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+      {/* 기본 정보 섹션 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className='text-lg font-semibold'>기본 정보</CardTitle>
+          <div className='text-sm text-muted-foreground'>
+            컨디션, 근무 시간, 장소 등을 기록하세요
+          </div>
+        </CardHeader>
+        <CardContent className='space-y-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* 컨디션 점수 */}
             <div>
               <label className='block text-sm font-medium text-foreground mb-2'>
+                <User className='w-4 h-4 inline mr-1' />
                 컨디션 점수 {getConditionEmoji(formData.condition_score)}
               </label>
               <Select
@@ -276,8 +280,29 @@ export function DailyReportForm() {
         </CardContent>
       </Card>
 
-      {/* 업무 섹션 */}
-      {currentReport && <TaskSection />}
+      {/* 목표 섹션 */}
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h3 className='text-lg font-semibold'>오늘의 목표</h3>
+            <p className='text-sm text-muted-foreground'>
+              이 날의 목표가 어떤 장기 목표와 연결되는지 확인하세요
+            </p>
+          </div>
+        </div>
+
+        <div className='bg-muted/50 rounded-lg p-4'>
+          <div className='flex items-center gap-2 mb-2'>
+            <Target className='w-4 h-4 text-primary' />
+            <span className='text-sm font-medium'>목표 연결</span>
+          </div>
+          <p className='text-sm text-muted-foreground'>
+            목표 작성 시 목표를 선택하여 진행 상황을 추적할 수 있습니다
+          </p>
+        </div>
+
+        <TaskSection />
+      </div>
 
       {/* 목표 연결 섹션 (향후 구현) */}
       {currentReport && (

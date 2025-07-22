@@ -14,12 +14,15 @@ import {
   User,
   LogOut,
   ChevronRight,
+  LayoutDashboard,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { OnboardingTrigger } from "@/components/ui/onboarding-trigger";
 
 const navigation = [
   {
@@ -89,7 +92,7 @@ export function Navbar() {
             <div className='flex items-center space-x-3'>
               <div className='w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg'>
                 <span className='text-primary-foreground font-bold text-lg'>
-                  P
+                  靑
                 </span>
               </div>
               <div>
@@ -237,26 +240,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* 모바일 상단 바 */}
-      <div className='lg:hidden'>
-        <div className='flex items-center justify-between h-16 px-4 bg-card/95 backdrop-blur-sm border-b border-border/50'>
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className='p-2 rounded-lg hover:bg-muted/50 text-muted-foreground transition-colors'
-          >
-            <Menu className='w-6 h-6' />
-          </button>
-          <div className='flex items-center space-x-3'>
-            <div className='w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-sm'>
-              <span className='text-primary-foreground font-bold text-sm'>
-                P
-              </span>
-            </div>
-            <span className='text-lg font-bold text-foreground'>PPMS</span>
-          </div>
-          <div className='w-10' /> {/* 균형을 위한 빈 공간 */}
-        </div>
-      </div>
+      {/* 알림 센터는 TopBar에서 처리 */}
     </>
   );
 }

@@ -17,23 +17,31 @@ const pageTitles: Record<string, string> = {
 
 export function TopBar() {
   const pathname = usePathname();
-  const { toggleSidebar } = useUIStore();
+  const { setSidebarOpen } = useUIStore();
   const pageTitle = pageTitles[pathname] || "Blueprint";
 
   return (
     <header className='sticky top-0 z-40 bg-background border-b lg:hidden'>
       <div className='flex h-16 items-center justify-between px-4'>
-        <Button
-          variant='ghost'
-          size='sm'
-          onClick={toggleSidebar}
-          className='lg:hidden'
-          aria-label='메뉴 열기'
-        >
-          <Menu className='h-5 w-5' />
-        </Button>
+        <div className='flex items-center space-x-3'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => setSidebarOpen(true)}
+            className='lg:hidden'
+            aria-label='메뉴 열기'
+          >
+            <Menu className='h-5 w-5' />
+          </Button>
+          <div className='flex items-center space-x-2'>
+            <div className='w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-sm'>
+              <span className='text-primary-foreground font-bold text-sm'>
+                靑
+              </span>
+            </div>
+          </div>
+        </div>
         <h1 className='text-lg font-semibold'>{pageTitle}</h1>
-        <div className='w-10' /> {/* 우측 여백 */}
       </div>
     </header>
   );

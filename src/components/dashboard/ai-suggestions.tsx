@@ -49,7 +49,7 @@ export function AISuggestions() {
           yesterday
         );
 
-        // 모든 업무 수집 (현재 보고서와 어제 보고서만)
+        // 모든 목표 수집 (현재 보고서와 어제 보고서만)
         const allTasks = [
           ...(currentReport?.tasks || []),
           ...(yesterdayReport?.tasks || []),
