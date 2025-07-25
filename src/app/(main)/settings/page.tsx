@@ -7,12 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useAuthStore } from "@/lib/stores/auth-store";
-import { useUIStore } from "@/lib/stores/ui-store";
 import { createClient } from "@/lib/supabase";
+import { toast } from "@/components/ui/toast";
 
 export default function SettingsPage() {
   const { profile, setProfile } = useAuthStore();
-  const { addNotification } = useUIStore();
   const supabase = createClient();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -51,15 +50,9 @@ export default function SettingsPage() {
       if (error) throw error;
 
       setProfile(data);
-      addNotification({
-        type: "success",
-        message: "프로필이 업데이트되었습니다.",
-      });
+      toast.success("프로필이 업데이트되었습니다.");
     } catch (error) {
-      addNotification({
-        type: "error",
-        message: "프로필 업데이트에 실패했습니다.",
-      });
+      toast.error("프로필 업데이트에 실패했습니다.");
     } finally {
       setIsSaving(false);
     }

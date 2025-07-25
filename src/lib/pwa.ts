@@ -33,13 +33,13 @@ export const defaultPWAConfig: PWAConfig = {
       src: "/icons/icon-192x192.png",
       sizes: "192x192",
       type: "image/png",
-      purpose: "any maskable",
+      purpose: "maskable",
     },
     {
       src: "/icons/icon-512x512.png",
       sizes: "512x512",
       type: "image/png",
-      purpose: "any maskable",
+      purpose: "maskable",
     },
   ],
 };
@@ -211,7 +211,7 @@ export function isPWAInstalled(): boolean {
     navigator.userAgent.includes("iPhone") ||
     navigator.userAgent.includes("iPad")
   ) {
-    return window.navigator.standalone === true;
+    return (window.navigator as any).standalone === true;
   }
 
   // Android Chrome

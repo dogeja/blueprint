@@ -1,7 +1,7 @@
 // src/components/dashboard/dashboard.tsx
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, lazy, Suspense } from "react";
 import { format, addDays, subDays } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,7 @@ import { StatsCards } from "./stats-cards";
 import { RecentActivity } from "./recent-activity";
 import { QuickActions } from "./quick-actions";
 import { TodayOverview } from "./today-overview";
-import {
-  ProgressChart,
-  ProductivityTrendChart,
-  MetricCard,
-} from "@/components/ui/charts";
+import { MetricCard } from "@/components/ui/charts";
 import { useDailyReportStore } from "@/lib/stores/daily-report-store";
 import { useGoalStore } from "@/lib/stores/goal-store";
 import { formatDate, getConditionEmoji } from "@/lib/utils";
@@ -30,6 +26,25 @@ import {
 } from "lucide-react";
 import { GoalProgressSection } from "./goal-progress-section";
 import { useAuthStore } from "@/lib/stores/auth-store";
+
+// Lazy load heavy chart components
+const ProgressChart = lazy(() =>
+  import("@/components/ui/charts").then((module) => ({
+    default: module.ProgressChart,
+  }))
+);
+const ProductivityTrendChart = lazy(() =>
+  import("@/components/ui/charts").then((module) => ({
+    default: module.ProductivityTrendChart,
+  }))
+);
+
+// Loading fallback component
+const ChartLoadingFallback = () => (
+  <div className='h-64 bg-muted animate-pulse rounded-lg flex items-center justify-center'>
+    <div className='text-muted-foreground'>차트 로딩 중...</div>
+  </div>
+);
 
 export function Dashboard() {
   const { user } = useAuthStore();
@@ -275,8 +290,12 @@ export function Dashboard() {
         </div>
 
         <div className='grid grid-cols-1 xl:grid-cols-2 gap-8'>
-          <ProgressChart data={progressChartData} title='주간 진행률 추이' />
-          <ProductivityTrendChart data={productivityChartData} />
+          <Suspense fallback={<ChartLoadingFallback />}>
+            <ProgressChart data={progressChartData} title='주간진행률' />
+          </Suspense>
+          <Suspense fallback={<ChartLoadingFallback />}>
+            <ProductivityTrendChart data={productivityChartData} />
+          </Suspense>
         </div>
       </div>
 

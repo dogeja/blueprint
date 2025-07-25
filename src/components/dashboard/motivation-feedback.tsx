@@ -52,8 +52,8 @@ export function MotivationFeedback() {
         const streak = calculateReportStreak(recentReports);
         const weeklyProgress = calculateWeeklyGoalProgress(goals);
         const comparison = compareYesterdayToday(
-          yesterdayReport?.tasks || [],
-          currentReport?.tasks || []
+          yesterdayReport ? { tasks: yesterdayReport.tasks } : null,
+          currentReport ? { tasks: currentReport.tasks } : null
         );
 
         // 동기부여 메시지 생성

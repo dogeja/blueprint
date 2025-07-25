@@ -2,134 +2,75 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useUIStore } from "@/lib/stores/ui-store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { createClient } from "@/lib/supabase";
+import { toast } from "@/components/ui/toast";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const { setUser } = useAuthStore();
   const router = useRouter();
   const supabase = createClient();
-  const { addNotification } = useUIStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-
-        if (error) throw error;
-
-        addNotification({
-          type: "success",
-          message: "회원가입이 완료되었습니다. 이메일을 확인해주세요.",
-        });
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-
-        router.push("/dashboard");
-      }
-    } catch (error: any) {
-      addNotification({
-        type: "error",
-        message: error.message || "로그인에 실패했습니다.",
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
+
+      if (error) throw error;
+
+      setUser(data.user);
+      toast.success("로그인되었습니다.");
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "로그인에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8'>
-      <Card className='w-full max-w-md'>
-        <CardHeader className='text-center'>
-          <div className='mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4'>
-            <span className='text-primary-foreground font-bold text-xl'>P</span>
+    <Card className='w-full max-w-md mx-auto'>
+      <CardHeader>
+        <CardTitle className='text-center'>로그인</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          <div>
+            <label className='block text-sm font-medium mb-1'>이메일</label>
+            <Input
+              type='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder='이메일을 입력하세요'
+            />
           </div>
-          <CardTitle className='text-2xl font-bold'>
-            {isSignUp ? "회원가입" : "로그인"}
-          </CardTitle>
-          <CardDescription>
-            {isSignUp
-              ? "당신의 청사진을 그려보세요"
-              : "BLUEPRINT에 로그인하세요"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className='space-y-4'>
-            <div>
-              <label
-                htmlFor='email'
-                className='block text-sm font-medium text-foreground mb-1'
-              >
-                이메일
-              </label>
-              <Input
-                id='email'
-                type='email'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder='이메일을 입력하세요'
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor='password'
-                className='block text-sm font-medium text-foreground mb-1'
-              >
-                비밀번호
-              </label>
-              <Input
-                id='password'
-                type='password'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder='비밀번호를 입력하세요'
-                required
-              />
-            </div>
-            <Button type='submit' className='w-full' disabled={isLoading}>
-              {isLoading ? "처리 중..." : isSignUp ? "회원가입" : "로그인"}
-            </Button>
-          </form>
-
-          <div className='mt-4 text-center'>
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className='text-sm text-primary hover:text-primary/80'
-            >
-              {isSignUp
-                ? "이미 계정이 있으신가요? 로그인"
-                : "계정이 없으신가요? 회원가입"}
-            </button>
+          <div>
+            <label className='block text-sm font-medium mb-1'>비밀번호</label>
+            <Input
+              type='password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder='비밀번호를 입력하세요'
+            />
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <Button type='submit' className='w-full' disabled={isLoading}>
+            {isLoading ? "로그인 중..." : "로그인"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

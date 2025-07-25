@@ -64,8 +64,10 @@ const menuItems = [
 
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { sidebarOpen, setSidebarOpen } = useUIStore();
   const { recentPages } = useRecentPagesStore();
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   // 최근 방문 2개, 자주 방문 2개 추출
   const recentPaths = recentPages.slice(0, 2).map((p) => p.path);

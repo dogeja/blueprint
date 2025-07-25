@@ -23,8 +23,11 @@ export function StatsCards() {
 
   const stats = [
     {
-      label: "평균 컨디션",
-      value: averageCondition > 0 ? `${averageCondition}/10` : "N/A",
+      label: "컨디션",
+      value:
+        averageCondition > 0
+          ? `${averageCondition}/10`
+          : "오늘의 컨디션을 알려주세요.",
     },
     {
       label: "목표 달성률",

@@ -218,7 +218,7 @@ export function TemplateSelector({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         {trigger || (
           <Button variant='outline' className={className}>
             <Plus className='h-4 w-4 mr-2' />
