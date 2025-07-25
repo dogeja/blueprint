@@ -1,18 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, User, Bell, Palette, Database } from "lucide-react";
+import { Save, User, Bell, Palette, Database, Smartphone } from "lucide-react";
+import { PushNotificationSettings } from "@/components/ui/push-notification-settings";
+import { PWAInstallSettings } from "@/components/ui/pwa-install-settings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { createClient } from "@/lib/supabase";
-import { toast } from "@/components/ui/toast";
+import { useToastStore } from "@/components/ui/toast";
 
 export default function SettingsPage() {
   const { profile, setProfile } = useAuthStore();
   const supabase = createClient();
+  const { addToast } = useToastStore();
 
   const [isSaving, setIsSaving] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -50,9 +53,9 @@ export default function SettingsPage() {
       if (error) throw error;
 
       setProfile(data);
-      toast.success("프로필이 업데이트되었습니다.");
+      addToast({ type: "success", title: "프로필이 업데이트되었습니다." });
     } catch (error) {
-      toast.error("프로필 업데이트에 실패했습니다.");
+      addToast({ type: "error", title: "프로필 업데이트에 실패했습니다." });
     } finally {
       setIsSaving(false);
     }
@@ -176,20 +179,11 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* 알림 설정 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Bell className='w-5 h-5' />
-            알림 설정
-          </CardTitle>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-          <div className='text-sm text-gray-600'>
-            알림 기능은 향후 버전에서 제공될 예정입니다.
-          </div>
-        </CardContent>
-      </Card>
+      {/* 푸시 알림 설정 */}
+      <PushNotificationSettings />
+
+      {/* PWA 설치 설정 */}
+      <PWAInstallSettings />
 
       {/* 데이터 관리 */}
       <Card>

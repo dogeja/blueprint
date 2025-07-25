@@ -5,6 +5,8 @@ import { Navbar } from "@/components/layout/navbar";
 import { TopBar } from "@/components/layout/TopBar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { FloatingActionButton } from "@/components/layout/FloatingActionButton";
+import { PWAInstallBanner } from "@/components/ui/pwa-install-banner";
+import { PWAInstallFAB } from "@/components/ui/pwa-install-fab";
 import { useGlobalHotkeys } from "@/lib/hooks/use-global-hotkeys";
 
 export default function MainLayout({
@@ -15,6 +17,9 @@ export default function MainLayout({
   useGlobalHotkeys();
   return (
     <div className='flex h-screen bg-background'>
+      {/* PWA 설치 배너 */}
+      <PWAInstallBanner />
+
       {/* 데스크탑 사이드바 */}
       <Navbar />
 
@@ -43,6 +48,9 @@ export default function MainLayout({
 
         {/* 모바일 플로팅 액션 버튼 */}
         <FloatingActionButton />
+
+        {/* PWA 설치 플로팅 버튼 */}
+        <PWAInstallFAB />
       </div>
     </div>
   );

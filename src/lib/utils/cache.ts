@@ -23,7 +23,9 @@ class LRUCache<T> {
     // 캐시가 가득 찬 경우 가장 오래된 항목 제거
     if (this.cache.size >= this.maxSize) {
       const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
     }
 
     this.cache.set(key, {
@@ -69,7 +71,7 @@ class LRUCache<T> {
   // 만료된 항목들 정리
   cleanup(): void {
     const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
+    for (const [key, item] of Array.from(this.cache.entries())) {
       if (now - item.timestamp > item.ttl) {
         this.cache.delete(key);
       }
