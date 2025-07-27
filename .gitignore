@@ -177,3 +177,39 @@ pnpm-lock.yaml
 
 # Local development files
 .local/
+
+# AI Development (Claude Code 사용 흔적)
+CLAUDE.md
+.claude/
+claude-*
+AI_CONVERSATION_*
+*_claude_*
+
+# 개인 메모 및 임시 파일
+NOTES.md
+TODO.md
+SCRATCH.md
+personal-notes/
+temp-*
+draft-*
+
+# 민감한 개발 정보
+api-keys.txt
+secrets.txt
+private-config.*
+dev-notes.*
+
+# 개인 설정 파일
+.vscode/settings.json
+.idea/workspace.xml
+*.user.ini
+
+# 로컬 테스트 데이터
+test-data/
+mock-data/
+sample-users.*
+
+# 개발자 개인 스크립트
+my-scripts/
+personal-tools/
+dev-helpers/
